@@ -1,0 +1,23 @@
+# This table holds the number of events present in the initial MC samples.
+# On the left is just the process name.
+CellClass=TableCellVal
+
+Process                                 | Events_MC       | Events_PATtuple 
+Data_EGamma                             | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_JetHT                              | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_MET                                | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_SingleMuon                         | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_HEMiss_EGamma                      | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_HEMiss_JetHT                       | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_HEMiss_MET                         | 1.0     +/- 0.0 | 1.0     +/- 0.0
+Data_HEMiss_SingleMuon                  | 1.0     +/- 0.0 | 1.0     +/- 0.0
+RelVal_QCD_FlatPt_15_3000HS             | 50000.0 +/- 0.0 | 50000.0 +/- 0.0
+RelVal_QCD_Pt_600_800                   | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelVal_QCD_Pt_80_120                    | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelVal_SMS_T1tttt_mGl1500_mLSP100       | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelVal_TTbar                            | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelValHEMiss_QCD_FlatPt_15_3000HS       | 50000.0 +/- 0.0 | 50000.0 +/- 0.0
+RelValHEMiss_QCD_Pt_600_800             | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelValHEMiss_QCD_Pt_80_120              | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100 | 9000.0  +/- 0.0 | 9000.0  +/- 0.0
+RelValHEMiss_TTbar                      | 9000.0  +/- 0.0 | 9000.0  +/- 0.0

@@ -1,0 +1,10 @@
+# This table holds the absolute location of the files for the different processes.
+# the process BasePath contains the base path to be appended to all the processes
+CellClass=TableCellText
+
+Process                      |   FilePath_EventNtuple
+BasePath                     |   root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV15/
+Data_EGamma                  |   Run2018*-PromptReco-v*.EGamma_*_RA2AnalysisTree.root
+Data_JetHT                   |   Run2018*-PromptReco-v*.JetHT_*_RA2AnalysisTree.root
+Data_MET                     |   Run2018*-PromptReco-v*.MET_*_RA2AnalysisTree.root
+Data_SingleMuon              |   Run2018*-PromptReco-v*.SingleMuon_*_RA2AnalysisTree.root

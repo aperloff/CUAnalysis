@@ -1,0 +1,11 @@
+<lcgdict>
+   <class name="EventNtuple" ClassVersion="0"/>
+   <class name="Plot" ClassVersion="2">
+	   <version ClassVersion="2" checksum="2786494640"/>
+	   <version ClassVersion="1" checksum="331599642"/>
+   </class>
+   <class name="FormattedPlot" ClassVersion="2">
+	   <version ClassVersion="2" checksum="33083182"/>
+	   <version ClassVersion="1" checksum="331599642"/>
+   </class>
+</lcgdict>

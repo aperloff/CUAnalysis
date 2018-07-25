@@ -1,0 +1,17 @@
+<use   name="CUAnalysis/AuxFunctions"/>
+<use   name="CUAnalysis/SpecialTools"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Math"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+<use   name="rootcore"/>
+<use   name="rootMinuit"/>
+<use   name="rootminuit2"/>
+<use   name="rootphysics"/>
+<use   name="rootgraphics"/>  
+<export>
+  <lib   name="1"/>
+</export>
+

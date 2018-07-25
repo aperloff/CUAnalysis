@@ -1,0 +1,22 @@
+# On the left is the process name.
+CellClass=TableCellMixed
+
+Process                                 | LeptonCat | ScaleFactor     | Comment
+Data_EGamma                             | both      | 1.000 +/- 1.000 | 
+Data_JetHT                              | both      | 1.000 +/- 1.000 | 
+Data_MET                                | both      | 1.000 +/- 1.000 | 
+Data_SingleMuon                         | both      | 1.000 +/- 1.000 | 
+Data_HEMiss_EGamma                      | both      | 1.000 +/- 1.000 | 
+Data_HEMiss_JetHT                       | both      | 1.000 +/- 1.000 | 
+Data_HEMiss_MET                         | both      | 1.000 +/- 1.000 | 
+Data_HEMiss_SingleMuon                  | both      | 1.000 +/- 1.000 | 
+RelVal_QCD_FlatPt_15_3000HS             | both      | 1.000 +/- 1.000 | 
+RelVal_QCD_Pt_600_800                   | both      | 1.000 +/- 1.000 | 
+RelVal_QCD_Pt_80_120                    | both      | 1.000 +/- 1.000 | 
+RelVal_SMS_T1tttt_mGl1500_mLSP100       | both      | 1.000 +/- 1.000 | 
+RelVal_TTbar                            | both      | 1.000 +/- 1.000 | 
+RelValHEMiss_QCD_FlatPt_15_3000HS       | both      | 1.000 +/- 1.000 | 
+RelValHEMiss_QCD_Pt_600_800             | both      | 1.000 +/- 1.000 | 
+RelValHEMiss_QCD_Pt_80_120              | both      | 1.000 +/- 1.000 | 
+RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100 | both      | 1.000 +/- 1.000 | 
+RelValHEMiss_TTbar                      | both      | 1.000 +/- 1.000 | 

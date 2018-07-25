@@ -1,0 +1,24 @@
+# This table holds the absolute location of the files for the different processes.
+# the process BasePath contains the base path to be appended to all the processes
+CellClass=TableCellText
+
+Process                                   |   FilePath_EventNtuple
+BasePath                                  |   root://cmseos.fnal.gov//store/user/aperloff/SUSY/RA2b13TeVProduction/V15a/
+Data_EGamma                               |   Run2018B-RelVal-v1.EGamma_*_RA2AnalysisTree.root
+Data_JetHT                                |   Run2018B-RelVal-v1.JetHT_*_RA2AnalysisTree.root
+Data_MET                                  |   Run2018B-RelVal-v1.MET_*_RA2AnalysisTree.root
+Data_SingleMuon                           |   Run2018B-RelVal-v1.SingleMuon_*_RA2AnalysisTree.root
+Data_HEMiss_EGamma                        |   Run2018B-RelVal-HEMiss-v1.EGamma_*_RA2AnalysisTree.root
+Data_HEMiss_JetHT                         |   Run2018B-RelVal-HEMiss-v1.JetHT_*_RA2AnalysisTree.root
+Data_HEMiss_MET                           |   Run2018B-RelVal-HEMiss-v1.MET_*_RA2AnalysisTree.root
+Data_HEMiss_SingleMuon                    |   Run2018B-RelVal-HEMiss-v1.SingleMuon_*_RA2AnalysisTree.root
+RelVal_QCD_FlatPt_15_3000HS               |   MCRelVal.RelValQCD_FlatPt_15_3000HS_13_*_RA2AnalysisTree.root
+RelVal_QCD_Pt_600_800                     |   MCRelVal.RelValQCD_Pt_600_800_13_0_RA2AnalysisTree.root
+RelVal_QCD_Pt_80_120                      |   MCRelVal.RelValQCD_Pt_80_120_13_0_RA2AnalysisTree.root
+RelVal_SMS_T1tttt_mGl1500_mLSP100         |   MCRelVal.RelValSMS-T1tttt_mGl-1500_mLSP-100_13_0_RA2AnalysisTree.root
+RelVal_TTbar                              |   MCRelVal.RelValTTbar_13_0_RA2AnalysisTree.root
+RelValHEMiss_QCD_FlatPt_15_3000HS         |   MCRelValHEMiss.RelValQCD_FlatPt_15_3000HS_13_*_RA2AnalysisTree.root
+RelValHEMiss_QCD_Pt_600_800               |   MCRelValHEMiss.RelValQCD_Pt_600_800_13_0_RA2AnalysisTree.root
+RelValHEMiss_QCD_Pt_80_120                |   MCRelValHEMiss.RelValQCD_Pt_80_120_13_0_RA2AnalysisTree.root
+RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100   |   MCRelValHEMiss.RelValSMS-T1tttt_mGl-1500_mLSP-100_13_0_RA2AnalysisTree.root
+RelValHEMiss_TTbar                        |   MCRelValHEMiss.RelValTTbar_13_0_RA2AnalysisTree.root

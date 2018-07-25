@@ -1,0 +1,23 @@
+# CrossSections (pb) : Not filled in yet
+# On the left is the process name.
+CellClass=TableCellVal
+
+Process                                   |   CrossSection
+Data_EGamma                               |   1.0          +/- 0.0
+Data_JetHT                                |   1.0          +/- 0.0
+Data_MET                                  |   1.0          +/- 0.0
+Data_SingleMuon                           |   1.0          +/- 0.0
+Data_HEMiss_EGamma                        |   1.0          +/- 0.0
+Data_HEMiss_JetHT                         |   1.0          +/- 0.0
+Data_HEMiss_MET                           |   1.0          +/- 0.0
+Data_HEMiss_SingleMuon                    |   1.0          +/- 0.0
+RelVal_QCD_FlatPt_15_3000HS               |   1356000000.0 +/- 0.0
+RelVal_QCD_Pt_600_800                     |   186.9        +/- 0.0
+RelVal_QCD_Pt_80_120                      |   2762530.0    +/- 0.0
+RelVal_SMS_T1tttt_mGl1500_mLSP100         |   0.0141903    +/- 0.0 
+RelVal_TTbar                              |   831.76       +/- 0.0
+RelValHEMiss_QCD_FlatPt_15_3000HS         |   1356000000.0 +/- 0.0
+RelValHEMiss_QCD_Pt_600_800               |   186.9        +/- 0.0
+RelValHEMiss_QCD_Pt_80_120                |   2762530.0    +/- 0.0
+RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100   |   0.0141903    +/- 0.0
+RelValHEMiss_TTbar                        |   831.76       +/- 0.0

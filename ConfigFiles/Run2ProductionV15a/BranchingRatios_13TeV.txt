@@ -1,0 +1,22 @@
+# On the left is the process name.
+CellClass=TableCellMixed
+
+Process                                 | BranchingRatio  | Comment
+Data_EGamma                             | 1.000 +/- 0.000 | Inclusive
+Data_JetHT                              | 1.000 +/- 0.000 | Inclusive
+Data_MET                                | 1.000 +/- 0.000 | Inclusive
+Data_SingleMuon                         | 1.000 +/- 0.000 | Inclusive
+Data_HEMiss_EGamma                      | 1.000 +/- 0.000 | Inclusive
+Data_HEMiss_JetHT                       | 1.000 +/- 0.000 | Inclusive
+Data_HEMiss_MET                         | 1.000 +/- 0.000 | Inclusive
+Data_HEMiss_SingleMuon                  | 1.000 +/- 0.000 | Inclusive
+RelVal_QCD_FlatPt_15_3000HS             | 1.000 +/- 0.000 | Inclusive
+RelVal_QCD_Pt_600_800                   | 1.000 +/- 0.000 | Inclusive
+RelVal_QCD_Pt_80_120                    | 1.000 +/- 0.000 | Inclusive
+RelVal_SMS_T1tttt_mGl1500_mLSP100       | 1.000 +/- 0.000 | Inclusive
+RelVal_TTbar                            | 1.000 +/- 0.000 | Inclusive
+RelValHEMiss_QCD_FlatPt_15_3000HS       | 1.000 +/- 0.000 | Inclusive
+RelValHEMiss_QCD_Pt_600_800             | 1.000 +/- 0.000 | Inclusive
+RelValHEMiss_QCD_Pt_80_120              | 1.000 +/- 0.000 | Inclusive
+RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100 | 1.000 +/- 0.000 | Inclusive
+RelValHEMiss_TTbar                      | 1.000 +/- 0.000 | Inclusive

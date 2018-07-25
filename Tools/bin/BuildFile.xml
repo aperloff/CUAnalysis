@@ -1,0 +1,18 @@
+<Flags CXXFLAGS="-O0 -g -DDEBUG" />
+<use   name="CUAnalysis/SpecialTools"/>
+<use   name="CUAnalysis/Tools"/>
+<use   name="DataFormats/Math" />
+<use   name="FWCore/FWLite"/>
+<use   name="rootphysics"/>
+<use   name="rootgraphics"/>  
+<use   name="root"/>
+<use   name="rootminuit2"/>
+<use   name="rootmath"/>
+<use   name="rootcore"/>
+<use   name="rootspectrum"/>
+<bin   name="plotter_x"                  file="plotter_x.cc" />
+<!--<bin   name="plotter_from_file_x"        file="plotter_from_file_x.cc" />
+<bin   name="Fitter_x"              	 file="Fitter_x.cc" />
+<bin   name="Optimization_x"        	 file="Optimization_x.cc" />
+<bin   name="testClass_x"                file="testClass_x.cc" />-->
+<!--comment-->
