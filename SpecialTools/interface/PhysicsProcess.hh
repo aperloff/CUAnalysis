@@ -7,8 +7,11 @@
 #define PHYSICSPROCESS_DEF
 
 //ROOT libraries
+#include "TEnv.h"
 #include "TFile.h"
 #include "TString.h"
+#include "TTreeCache.h"
+#include "TTree.h"
 #include "TChain.h"
 #include "TChainElement.h"
 #include "TObjArray.h"
@@ -57,8 +60,8 @@ public:
    vector<string> getListOfFiles(bool print = false, string appendChar = "");
 
    // The given name of the process
-   TString  name;
-   inline TString getName() const {return name;}
+   string  name;
+   inline string getName() const {return name;}
    // The group with which you will merge it in canvases (Diboson, Single Top, etc)
    TString groupName;
    // The file path of the process
@@ -83,12 +86,14 @@ public:
    PlotterPhysicsProcess(std::string procName,
                          std::string groupingName,
                          std::string fileNameTEMP,
-                         int col,
-                         std::string treeName = "PS/EvtTree");
+                         std::string treeName = "PS/EvtTree",
+                         int color_ = kBlack,
+                         int marker_ = kFullCircle);
    
    // the color used to draw this process
    int color;
-
+   // the marker used to represent this process
+   int marker;
 };
 
 #endif

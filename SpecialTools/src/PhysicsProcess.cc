@@ -11,12 +11,12 @@
 
 PhysicsProcess::PhysicsProcess (string procName,
                                 string groupingName,
-                                string fileNameTEMP,
+                                string fileNameTmp,
                                 string treeName,
                                 bool debug):
 name(procName),
 groupName(groupingName),
-fileName(fileNameTEMP),
+fileName(fileNameTmp),
 chain (new TChain(treeName.c_str()))
 {
     cout << "PhysicsProcess:PhysicsProcess Getting files for the process \e[4m" << name << "\e[24m" << endl;
@@ -26,6 +26,9 @@ chain (new TChain(treeName.c_str()))
         cout << "ERROR PhysicsProcess::PhysicsProcess() The chain is null!" << endl;
         return;
     }
+
+    // Enable a thread that will effectively prefetch the next cache chunk while processing is going on
+    gEnv->SetValue("TFile.AsyncPrefetching", 1);
 
     TFile* file = nullptr;
     int file_count(0);
@@ -67,6 +70,13 @@ chain (new TChain(treeName.c_str()))
         return;
     }
     if (file_count==0){ cout<<"No files found! Aborting."<<endl; return; }
+
+    // Try to speed up the reading of the chain
+    TTreeCache::SetLearnEntries(100);
+    chain->SetCacheSize(200*1024*1024); //200MB cache size
+    chain->SetCacheEntryRange(0, chain->GetEntries());
+    chain->AddBranchToCache("*", true);
+    chain->StopCacheLearningPhase();
 
     // Return the working directory to its initial state
     gDirectory->cd(currentDir);
@@ -164,10 +174,8 @@ vector<string> PhysicsProcess::getListOfFiles(bool print, string appendChar) {
 
 PlotterPhysicsProcess::PlotterPhysicsProcess (string procName,
                                               string groupingName,
-                                              string fileNameTEMP,
-                                              int col,
-                                              string treeName):
-   PhysicsProcess(procName, groupingName, fileNameTEMP, treeName),
-   color(col){
-   
-}
+                                              string fileNameTmp,
+                                              string treeName,
+                                              int color_,
+                                              int marker_):
+   PhysicsProcess(procName, groupingName, fileNameTmp, treeName), color(color_), marker(marker_) {}
