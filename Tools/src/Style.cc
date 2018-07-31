@@ -17,6 +17,14 @@ void Style::tdrDraw(TH1* h, string opt,
   h->SetLineColor(lcolor==-1 ? mcolor : lcolor);
   h->SetFillStyle(fstyle);
   h->SetFillColor(fcolor);
+  if (opt.find("colz")!=string::npos || opt.find("COLZ")!=string::npos) {
+    h->SetTitleFont(gStyle->GetTitleFont(), "XYZ");
+    h->SetTitleSize(gStyle->GetTitleSize(), "XYZ");
+    h->SetTitleOffset(0.9,"Z");
+    h->SetLabelFont(gStyle->GetLabelFont(), "XYZ");
+    h->SetLabelOffset(gStyle->GetLabelOffset(), "XYZ");
+    h->SetLabelSize(gStyle->GetLabelSize(), "XYZ");
+  }
   h->Draw((opt+"SAME").c_str());
 }
 
@@ -250,8 +258,9 @@ void Style::setTDRStyle() {
 
 //#include "CMS_lumi.h"
 
-void Style::CMS_lumi( TPad* pad, int iPeriod, int iPosX )
-{            
+void Style::CMS_lumi( TPad* pad, int iPeriod, int iPosX, string options ) {
+  bool colz = false;
+  if (options.find("colz")!=string::npos || options.find("COLZ")!=string::npos) colz = true;
   bool outOfFrame    = false;
   if( iPosX/10==0 ) 
     {
@@ -337,7 +346,7 @@ void Style::CMS_lumi( TPad* pad, int iPeriod, int iPosX )
   latex.SetTextFont(42);
   latex.SetTextAlign(31); 
   latex.SetTextSize(lumiTextSize*t);
-  latex.DrawLatex(1-r,1-t+lumiTextOffset*t,lumiText);
+  latex.DrawLatex(1-r+(colz?0.06:0.00),1-t+lumiTextOffset*t,lumiText);
 
   if( outOfFrame )
     {
@@ -426,12 +435,16 @@ void Style::CMS_lumi( TPad* pad, int iPeriod, int iPosX )
 
 // Give the macro an empty histogram for h->Draw("AXIS");
 // Create h after calling setTDRStyle to get all the settings right
-TCanvas* Style::tdrCanvas(const char* canvName, TH1D *h,
-       			   int iPeriod, int iPos,
-       			   bool square) {
+TCanvas* Style::tdrCanvas(const char* canvName, TH1D *h, int iPeriod, int iPos,
+       			              bool square, double lumiOverride, string options) {
 
   setTDRStyle();
   reset_globals();
+
+  if(lumiOverride>=0)
+    lumi_13TeV = Form("%3.2f fb^{-1}",lumiOverride);
+  bool is2D = false;
+  if (options.find("colz")!=string::npos || options.find("COLZ")!=string::npos) is2D = true;
 
   //writeExtraText = true;       // if extra text
   //extraText  = "Preliminary";  // default extra text is "Preliminary"
@@ -478,7 +491,7 @@ TCanvas* Style::tdrCanvas(const char* canvName, TH1D *h,
   canv->SetFrameFillStyle(0);
   canv->SetFrameBorderMode(0);
   canv->SetLeftMargin( L/W );
-  canv->SetRightMargin( R/W );
+  canv->SetRightMargin( R/W + (is2D ? 0.13 : 0.00) ); //Change from 0.08 to 0.10 if ned more room for axis title
   canv->SetTopMargin( T/H );
   canv->SetBottomMargin( B/H );
   // FOR JEC plots, prefer to keep ticks on both sides
@@ -486,12 +499,12 @@ TCanvas* Style::tdrCanvas(const char* canvName, TH1D *h,
   //canv->SetTicky(0);
 
   assert(h);
-  h->GetYaxis()->SetTitleOffset(square ? 1.25 : 1); //original values were 1.25 and 1 respectively
-  h->GetXaxis()->SetTitleOffset(square ? 0.9 : 0.9); //original values were 1.0 and 0.9 respectively
+  h->GetYaxis()->SetTitleOffset(square ? 1.25 : 1.00);
+  h->GetXaxis()->SetTitleOffset(square ? 0.90 : 0.90); //original values were 1.0 and 0.9 respectively
   h->Draw("AXIS");
 
   // writing the lumi information and the CMS "logo"
-  CMS_lumi( canv, iPeriod, iPos );
+  CMS_lumi( canv, iPeriod, iPos, options );
   
   canv->Update();
   canv->RedrawAxis();

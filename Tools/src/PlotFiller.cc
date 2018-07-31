@@ -15,12 +15,14 @@ using namespace std;
 //#####################################################################
 //#####################################################################
 
-PlotFiller::PlotFiller(MapOfPlots &plotsTemp,
-                       vector<PhysicsProcess*> &procsTemp,
-                       void (*userFillFuncTemp) (MapOfPlots &, TString, EventNtuple*, double)):
-   plots(plotsTemp),
-   processes(procsTemp),
-   userFillFunc(userFillFuncTemp)
+PlotFiller::PlotFiller(MapOfPlots &plots_,
+                       vector<PhysicsProcess*> &procs_,
+                       Table &cutFlow_,
+                       void (*userFillFunc_) (MapOfPlots &, TString, EventNtuple*, double)):
+   plots(plots_),
+   processes(procs_),
+   cutFlow(cutFlow_),
+   userFillFunc(userFillFunc_)
 {
    userWeightFunc = &defaultWeightFunc;
    userCutFunc = &defaultCutFunc;
@@ -31,54 +33,48 @@ PlotFiller::PlotFiller(MapOfPlots &plotsTemp,
    
    debug = false;
 
+   sample_benchmark = new TBenchmark();
+   sample_benchmark->Reset();
    event_benchmark = new TBenchmark();
    event_benchmark->Reset();
    func_benchmark = new TBenchmark();
    func_benchmark->Reset();
 }
 
-PlotFiller::~PlotFiller()
-{
+PlotFiller::~PlotFiller() {
+   delete sample_benchmark;
    delete event_benchmark;
    delete func_benchmark;
 }
 
-void PlotFiller::setWeightFunction(double (*userWeightFuncTemp) (EventNtuple*, const PhysicsProcess*))
-{
-   userWeightFunc = userWeightFuncTemp;
+void PlotFiller::setWeightFunction(double (*userWeightFunc_) (EventNtuple*, const PhysicsProcess*)) {
+   userWeightFunc = userWeightFunc_;
 }
 
-void PlotFiller::setCutFunction(bool (*userCutFuncTemp) (EventNtuple*, const PhysicsProcess*))
-{
-   userCutFunc = userCutFuncTemp;
+void PlotFiller::setCutFunction(bool (*userCutFunc_) (EventNtuple*, const PhysicsProcess*, Table&)) {
+   userCutFunc = userCutFunc_;
 }
 
-void PlotFiller::setProcessFunction(void (*userProcessFuncTemp) (EventNtuple*, const PhysicsProcess*))
-{
-   userProcessFunc = userProcessFuncTemp;
+void PlotFiller::setProcessFunction(void (*userProcessFunc_) (EventNtuple*, const PhysicsProcess*)) {
+   userProcessFunc = userProcessFunc_;
 }
 
-void PlotFiller::setInitializeEventFunction(void (*userInitEventFuncTemp) (EventNtuple*, const PhysicsProcess*))
-{
-   userInitEventFunc = userInitEventFuncTemp;
+void PlotFiller::setInitializeEventFunction(void (*userInitEventFunc_) (EventNtuple*, const PhysicsProcess*)) {
+   userInitEventFunc = userInitEventFunc_;
 }
 
-void PlotFiller::setMaximumEventsDEBUG(unsigned int maxEvts)
-{
+void PlotFiller::setMaximumEventsDEBUG(unsigned int maxEvts) {
    debugNumberOfEvents = maxEvts;
    debug = true;
 }
 
-void PlotFiller::setLimitBranches(int lb)
-{
+void PlotFiller::setLimitBranches(int lb) {
    limitBranches = lb;
 }
 
-void PlotFiller::run()
-{
+void PlotFiller::run() {
    cout << "PlotFiller::run Begin filling plots" << endl;
-   for(unsigned int i = 0; i < processes.size(); i++)
-   {
+   for(unsigned int i = 0; i < processes.size(); i++) {
       cout << "\n\e[1mDoing PhysicsProcess \e[4m" << processes[i]->name << "\e[24m\e[21m" << endl;
       //cout << "\tFrom file " << processes[i]->fileName << endl;
       processes[i]->getListOfFiles(true,"\t");
@@ -102,7 +98,7 @@ void PlotFiller::run()
 
       // Check some test branch
       if (c->GetBranch("RunNum")) {
-         ntuple = new EventNtuple(c, (processes[i]->name.Contains("Data")) ? false : true);
+         ntuple = new EventNtuple(c, (DefaultValues::ci_find_substr(processes[i]->name,string("data"))!=-1) ? false : true);
          //c->SetBranchAddress("EvtTree",&ntuple);
       }
       else {
@@ -118,22 +114,19 @@ void PlotFiller::run()
       double weight = 1.0;
 
       // Loop over events in the process
-      if(debug && debugNumberOfEvents < c->GetEntries())
-      {
+      if(debug && debugNumberOfEvents < c->GetEntries()) {
          numberOfEvents = debugNumberOfEvents;
       }
-      else
-      {
+      else {
          numberOfEvents = c->GetEntries();
       }
-      
+      *(cutFlow(DEFS::getCutLevelString((DEFS::CutLevel)0),processes[i]->name)) = Value(numberOfEvents,0.0);
       cout << "\tProcessing " << numberOfEvents << " events (out of " << c->GetEntries() << ")." << endl;
       
       // This runs once for each process before the events are run.
       userProcessFunc(ntuple, processes[i]);
 
-      for (unsigned int ev = 0 ; ev < numberOfEvents ; ev++)
-      {
+      for (unsigned int ev = 0 ; ev < numberOfEvents ; ev++) {
          //if debug, time the event
          if(debug && numberOfEvents<100) {
             event_benchmark->Start("event");
@@ -141,9 +134,13 @@ void PlotFiller::run()
          }
 
          // Report every now and then
-         ProgressBar::loadbar2(ev+1,numberOfEvents);
-         //if ((ev % 10000) == 0)
-         //   cout<<"\t\tevent "<<ev<<endl;
+         if(ev==0) sample_benchmark->Start("sample");
+         if(ev==numberOfEvents-1) sample_benchmark->Stop("sample");
+         ProgressBar::loadbar(ev+1,numberOfEvents,50,"PlotFiller Progress:",
+                              (ev==numberOfEvents-1) ? make_pair((float)sample_benchmark->GetCpuTime("sample"),
+                                                                 (float)sample_benchmark->GetRealTime("sample"))
+                                                     : make_pair(float(0.0),float(0.0)));
+         if(ev==numberOfEvents-1) sample_benchmark->Reset();
          
          // Get the given entry
          c->GetEntry(ev);
@@ -155,7 +152,7 @@ void PlotFiller::run()
          userInitEventFunc(ntuple, processes[i]);
          
          // Cut events here
-         if(!userCutFunc(ntuple, processes[i]))
+         if(!userCutFunc(ntuple, processes[i], cutFlow))
             continue;
          
          // reset the weight for each event, so the default will be 1.0

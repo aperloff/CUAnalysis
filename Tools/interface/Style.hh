@@ -52,14 +52,13 @@ public:
 
   void setTDRStyle();
 
-  void CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10 );
+  void CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10, string options = "" );
   void reset_globals();
 
-  TCanvas* tdrCanvas(const char* canvName, TH1D *h,
-                            int iPeriod = 2, int iPos = 11,
-                            bool square = kRectangular);
-  TCanvas* tdrDiCanvas(const char* canvName, TH1D *hup, TH1D *hdw,
-                              int iPeriod = 2, int iPos = 11, double lumiOverride = -1);
+  TCanvas* tdrCanvas(const char* canvName, TH1D *h, int iPeriod = 2, int iPos = 11,
+                     bool square = kRectangular, double lumiOverride = -1, string options = "");
+  TCanvas* tdrDiCanvas(const char* canvName, TH1D *hup, TH1D *hdw, int iPeriod = 2,
+                       int iPos = 11, double lumiOverride = -1);
 
 private:
   static const bool kSquare = true;

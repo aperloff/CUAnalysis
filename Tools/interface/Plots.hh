@@ -63,17 +63,18 @@ public :
    void scaleToData(std::vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat);
    
    // Saves the histograms to the filename
-  void saveHistogramsToFile(TString histoFile, TString option = "RECREATE");
+   void saveHistogramsToFile(string histoFile, string option = "RECREATE", string directory = "");
+   void saveHistogramsToFile(TFile &ofile, string directory = "");
 
    // Loads the histograms from a preexisting file
-  void loadHistogramsFromFile(TDirectoryFile* dir, std::vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat, bool procNameOnly = false, TDirectoryFile* data_dir = 0);
-  void loadHistogramsFromCombinedFile(TDirectoryFile* dir, DEFS::LeptonCat lepCat);
+   void loadHistogramsFromFile(TDirectoryFile* dir, std::vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat, bool procNameOnly = false, TDirectoryFile* data_dir = 0);
+   void loadHistogramsFromCombinedFile(TDirectoryFile* dir, DEFS::LeptonCat lepCat);
 
    // Sets the scaled variable
-  void setScaled(bool s) {scaled = s;}
+   void setScaled(bool s) {scaled = s;}
 
    // Prints a list of histograms loaded into the plot
-  void printList();
+   void printList();
 
    // Do the grouping of the histograms according to some rules.
    // For example join all histos for singleTop into a single one, 
@@ -104,16 +105,15 @@ class FormattedPlot: public Plot
 public:
    FormattedPlot();
    FormattedPlot(TH1*,std::vector<std::string>,std::pair<double,double>);
+   FormattedPlot(const FormattedPlot &fp);
    ~FormattedPlot() {};
    
-   double overlaySignalFactor;
-   TString overlaySignalName;
-   int RoundToNearest(int iNumberToRound, int iToNearest = 100);
-   
    // Make the canvas here
-   TCanvas* getCanvasTDR(std::vector<PhysicsProcess*> procs);
-   TCanvas* getStackedCanvas(std::vector<PhysicsProcess*> procs);
-   TCanvas* getStackedCanvasTDR(std::vector<PhysicsProcess*> procs);
+   vector<TCanvas*> getCanvasTDR(std::vector<PhysicsProcess*> procs);
+   vector<TCanvas*> getCanvas1DTDR(std::vector<PhysicsProcess*> procs);
+   vector<TCanvas*> getCanvas2DRatioTDR(std::vector<PhysicsProcess*> procs);
+   vector<TCanvas*> getStackedCanvas(std::vector<PhysicsProcess*> procs);
+   vector<TCanvas*> getStackedCanvasTDR(std::vector<PhysicsProcess*> procs);
 
    // Do the grouping of histograms according to histo->title, which is process groupName;
    std::vector<TH1*> doGrouping(std::vector<PhysicsProcess*> procs);
@@ -137,6 +137,9 @@ public:
    // Function to draw the bin information
    void drawBinInfo();
 
+   // Return an integer rounded to the nearest N
+   int RoundToNearest(int iNumberToRound, int iToNearest = 100);
+
    std::vector<std::string> axisTitles;
    std::pair<double,double> range;
    std::pair<bool,bool> logxy;
@@ -153,22 +156,20 @@ public:
    // The cut flow used to make the plot
    DEFS::ControlRegion controlRegion;
 
+   // The name and multiplicative factor for the signal histogram
+   double overlaySignalFactor;
+   TString overlaySignalName;
+
 private:
    // Take care of the formatting
    void formatColors(std::vector<PhysicsProcess*> procs);
    void formatColorsStack(std::vector<PhysicsProcess*> procs);
    void formatRatio(TH1* hRatio);
    void formatStack(THStack * stack, double maxi);
-  TH1 * findTitleInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
-  TH1 * titleContainedInTH1Vector(TString title, vector<TH1*> groupedHistos);
+   TH1 * findTitleInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
+   TH1 * titleContainedInTH1Vector(TString title, vector<TH1*> groupedHistos);
 
-   //static const EColor tdrColors[13] = {kBlack, kBlue, kRed, kGreen, kYellow, kMagenta, kCyan,
-   //                                     kOrange, kSpring, kTeal, kAzure, kViolet, kPink};
-//
-//   //static const bool kSquare = true;
-   //static const bool kRectangular = false;
-
-   ClassDef (FormattedPlot,2);
+   ClassDef (FormattedPlot,3);
 };
 
 #endif

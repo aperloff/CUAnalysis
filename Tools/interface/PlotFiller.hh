@@ -10,8 +10,10 @@
 // Our libraries
 #include "CUAnalysis/Tools/interface/Plots.hh"
 #include "CUAnalysis/SpecialTools/interface/EventNtuple.hh"
+#include "CUAnalysis/SpecialTools/interface/Table.hh"
 #include "CUAnalysis/SpecialTools/interface/ProgressBar.hh"
 #include "CUAnalysis/Tools/interface/PUreweight.hh"
+
 
 //ROOT libraries
 #include "TBenchmark.h"
@@ -21,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <utility>
 
 // PlotFiller is a modular solution to extracting plots from root files.
 // It allows the user to customize how he/she wants to produce the plots.
@@ -32,16 +35,17 @@ public:
   typedef map<DEFS::LeptonCat, map<std::string,  Plot * > >  MapOfPlots;
 
    // NOTE That the user must provide the fill function at construction (because it is a required function).
-   PlotFiller(MapOfPlots &plotsTemp,
-              std::vector<PhysicsProcess*> &procsTemp,
-              void (*userFillFuncTemp) (MapOfPlots &, TString, EventNtuple*, double) );
+   PlotFiller(MapOfPlots &plots_,
+              std::vector<PhysicsProcess*> &procs_,
+              Table &cutFlow_,
+              void (*userFillFunc_) (MapOfPlots&, TString, EventNtuple*, double) );
    ~PlotFiller();
    
    // Simple functions to change the functionality of the code.
-   void setWeightFunction(double (*userWeightFuncTemp) (EventNtuple*, const PhysicsProcess*));
-   void setCutFunction(bool (*userCutFuncTemp) (EventNtuple*, const PhysicsProcess*));
-   void setProcessFunction(void (*userProcessFuncTemp) (EventNtuple*, const PhysicsProcess*));
-   void setInitializeEventFunction(void (*userInitEventFuncTemp) (EventNtuple*, const PhysicsProcess*));
+   void setWeightFunction(double (*userWeightFunc_) (EventNtuple*, const PhysicsProcess*));
+   void setCutFunction(bool (*userCutFunc_) (EventNtuple*, const PhysicsProcess*, Table&));
+   void setProcessFunction(void (*userProcessFunc_) (EventNtuple*, const PhysicsProcess*));
+   void setInitializeEventFunction(void (*userInitEventFunc_) (EventNtuple*, const PhysicsProcess*));
    void setLimitBranches(int lb);
    
    // Debug functions
@@ -54,10 +58,12 @@ private:
    // NOTE That the plots and processes are references.
    MapOfPlots &plots;
    std::vector<PhysicsProcess*> &processes;
+   Table &cutFlow;
    unsigned int numberOfEvents;
    unsigned int debugNumberOfEvents;
    bool debug;
    int limitBranches;
+   TBenchmark* sample_benchmark;
    TBenchmark* event_benchmark;
    TBenchmark* func_benchmark;
 
@@ -67,14 +73,14 @@ private:
    // Returns a double that will multiply the weight
    double (*userWeightFunc) (EventNtuple*, const PhysicsProcess*);
    // Returns true if the event passes the cut
-   bool (*userCutFunc) (EventNtuple*, const PhysicsProcess*);
+   bool (*userCutFunc) (EventNtuple*, const PhysicsProcess*, Table&);
    // This function is called once for each process before the events are run
    void (*userProcessFunc) (EventNtuple*, const PhysicsProcess*);
    // This function is called once for each event before any cuts are made
    void (*userInitEventFunc) (EventNtuple*, const PhysicsProcess*);
    
    // These default functions allow the user to only have to create functions for weights etc that he/she wants to add.
-   static bool defaultCutFunc(EventNtuple*, const PhysicsProcess*)
+   static bool defaultCutFunc(EventNtuple*, const PhysicsProcess*, Table&)
    {
       return true;
    }

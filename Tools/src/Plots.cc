@@ -136,129 +136,26 @@ void Plot::scaleToData(vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat)
    scaled = true;
 }
 
-/* 
-// ------------------------------------------------------------
-// This groups all the histograms that need grouping.
-// Typically all the Single tops and Dibosons
-vector<TH1*> Plot::doGrouping(vector<PhysicsProcess*> procs)
-{
-   // The returning vector
-   vector<TH1*> groups;
-   if (procs.size()  != histos.size() )
-   {
-      cout<<"ERROR Plot::doGrouping procs.size()="<<procs.size()
-          <<" is different than histos.size()="<<histos.size()<<endl;
-      cout<<"\t Returning NO groups!"<<endl;
-      return groups;
-   }
-
-   // The grouped ones
-   TH1 * stop = (TH1*) templateHisto->Clone(TString(templateHisto->GetName())+"_STop");
-   stop->SetTitle("STop");
-   stop->Sumw2();
-   TH1 * dibo = (TH1*) templateHisto->Clone(TString(templateHisto->GetName())+"_Diboson");
-   dibo->SetTitle("WW+WZ+ZZ");
-   dibo->Sumw2();
-   TH1 * higgs = (TH1*) templateHisto->Clone(TString(templateHisto->GetName())+"_Higgs");
-   higgs->SetTitle("ggH+WH+VBF");
-   higgs->Sumw2();
-   
-   // Loop over histos grouping around
-   for (unsigned int h=0; h < histos.size(); h ++)
-   {
-      TString hName = histos[h]->GetTitle();
-      
-      if (hName.Contains("STopT_Tbar")  ||
-          hName.Contains("STopT_T")     ||
-          hName.Contains("STopTW_Tbar") ||
-          hName.Contains("STopTW_T")    ||
-          hName.Contains("STopS_Tbar")  ||
-          hName.Contains("STopS_T")     )
-      {
-         // if first time set the attributes
-         if (stop->GetEntries()==0)
-         {
-            stop->SetLineColor(histos[h]->GetLineColor());
-            stop->SetFillColor(histos[h]->GetFillColor());
-            stop->SetMarkerColor(histos[h]->GetMarkerColor());
-         }
-         
-         // add to single top
-         stop->Add(histos[h]);
-         
-      }
-      else if (hName.Contains("WW") ||
-               hName.Contains("WZ") ||
-               hName.Contains("ZZ") )
-      {
-
-         // if first time set the attributes
-         if (dibo->GetEntries()==0)
-         {
-            dibo->SetLineColor(histos[h]->GetLineColor());
-            dibo->SetFillColor(histos[h]->GetFillColor());
-            dibo->SetMarkerColor(histos[h]->GetMarkerColor());
-         }
-
-         // add to diboson
-         dibo->Add(histos[h]);
-
-      }
-      else if (hName.Contains("ggH") || 
-               hName.Contains("qqH") ||
-               hName.Contains("WH")  )
-      {
-         // if first time set the attributes
-         if (higgs->GetEntries()==0)
-         {
-            higgs->SetLineColor(histos[h]->GetLineColor());
-            higgs->SetFillColor(histos[h]->GetFillColor());
-            higgs->SetMarkerColor(histos[h]->GetMarkerColor());
-         }
-
-         // add to higgs
-         higgs->Add(histos[h]);
-      }
-      else
-      {
-         // add as an independent process.
-         groups.push_back(histos[h]);
-      }
-   }
-
-   // Add the higgs, diboson, and single top if they were present
-   if (stop->GetEntries() >0)  groups.insert(groups.begin(), stop);
-   if (dibo->GetEntries() >0)  groups.insert(groups.begin(), dibo);
-   if (higgs->GetEntries() >0)  groups.insert(groups.begin(), higgs);
-
-   // return the groupedHistos
-   return groups;
-
+void Plot::saveHistogramsToFile(string histoFile, string option, string directory) {
+    TFile output(histoFile.c_str(), option.c_str());
+    saveHistogramsToFile(output,directory);
+    if(output.IsOpen())
+        output.Close();
 }
-*/
- // This is wrong, someone needs to fix it;
- // ** the output->close before the ProfileMDF::WriteToFile call will 
- // not allow the regular histo to be save after a TProfileMDF has been saved
-void Plot::saveHistogramsToFile(TString histoFile, TString option)
-{
-   TFile output(histoFile, option);
-   for (unsigned int i = 0; i < histos.size(); i++){
-      /*
-     if(TString(histos[i]->ClassName()).Contains("TProfileMDF")==1) {
-       output.Close();
-       ((TProfileMDF*)histos[i])->WriteToFile(histoFile,"UPDATE");
-     }
-     else*/ if(histos[i]->GetEntries()>0){
-       histos[i]->Write();
-     }
-     else {
-       cout << "WARNING::Plot Not saving histogram " << histos[i]->GetName() << " because it doesn't have any entries." << endl;
-       continue;
-     }
-   }
-   if(output.IsOpen())
-     output.Close();
+
+void Plot::saveHistogramsToFile(TFile &ofile, string directory) {
+    ofile.cd(directory.c_str());
+    for(auto h : histos) {
+        if(h->GetEntries()>0) {
+            h->Write();
+        }
+        else {
+            cout << "WARNING::Plot Not saving histogram " << h->GetName() << " because it doesn't have any entries." << endl;
+            continue;
+        }
+    }
 }
+
 void Plot::loadHistogramsFromFile(TDirectoryFile* dir, std::vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat, bool procNameOnly, TDirectoryFile* data_dir)
 {
   int loaded = 0;
@@ -267,13 +164,13 @@ void Plot::loadHistogramsFromFile(TDirectoryFile* dir, std::vector<PhysicsProces
   for(unsigned int i = 0; i < procs.size(); i++) {
     TString name;
     if(procNameOnly)
-      name = Form("%s",procs[i]->name.Data());
+      name = Form("%s",procs[i]->name.c_str());
     else
-      name = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.Data(),
+      name = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.c_str(),
                         DEFS::getLeptonCatString(lepCat).c_str());
 
-    if(procs[i]->name.Contains("data",TString::kIgnoreCase) && data_dir!=0) {
-      TString nameAlt = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.Data(),
+    if(DefaultValues::ci_find_substr(procs[i]->name,string("data"))!=-1 && data_dir!=0) {
+      TString nameAlt = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.c_str(),
                         DEFS::getLeptonCatString(lepCat).c_str());
       TH1* data_hist(0); 
 
@@ -391,10 +288,39 @@ range(range_)
    logxy = make_pair(false,false);
 }
 
+FormattedPlot::FormattedPlot(const FormattedPlot &fp) :
+Plot((TH1*)fp.templateHisto->Clone()),
+axisTitles(fp.axisTitles),
+range(fp.range),
+logxy(fp.logxy),
+leptonCat(fp.leptonCat),
+jetBin(fp.jetBin),
+tagCat(fp.tagCat),
+controlRegion(fp.controlRegion),
+overlaySignalFactor(fp.overlaySignalFactor),
+overlaySignalName(fp.overlaySignalName)
+{
+    for(unsigned int ih=0; ih<fp.histos.size(); ih++) {
+        histos.push_back((TH1*)fp.histos[ih]->Clone());
+    }
+    stacked = fp.stacked;
+    normToData = fp.normToData;
+}
+
 // ------------------------------------------------------------
 // Make the Canvas here
 // ------------------------------------------------------------
-TCanvas* FormattedPlot::getCanvasTDR(std::vector<PhysicsProcess*> procs) {
+vector<TCanvas*> FormattedPlot::getCanvasTDR(std::vector<PhysicsProcess*> procs) {
+    cout << "Doing plot " << templateHisto->GetName() << "\t";
+
+    if(string(templateHisto->ClassName()).find("TH2")!=string::npos)
+        return getCanvas2DRatioTDR(procs);
+    else
+        return getCanvas1DTDR(procs);
+}
+
+// ------------------------------------------------------------
+vector<TCanvas*> FormattedPlot::getCanvas1DTDR(std::vector<PhysicsProcess*> procs) {
     Style* st = new Style();
     st->setTDRStyle();
     TGaxis::SetMaxDigits(3);
@@ -432,8 +358,8 @@ TCanvas* FormattedPlot::getCanvasTDR(std::vector<PhysicsProcess*> procs) {
     frame_up->GetXaxis()->SetLimits(range.first, range.second);
     frame_up->GetXaxis()->SetMoreLogLabels();
     frame_up->GetXaxis()->SetNoExponent();
-    double multiplier = 1.50;//1.25;
-    frame_up->GetYaxis()->SetRangeUser(0.0001,*std::max_element(maximums.begin(),maximums.end())*multiplier);
+    double multiplier = (logxy.second) ? 5.00 : 1.50;//1.25;
+    frame_up->GetYaxis()->SetRangeUser((logxy.second) ? 0.3 : 0.0001,*std::max_element(maximums.begin(),maximums.end())*multiplier);
     frame_up->GetXaxis()->SetTitle(axisTitles[0].c_str());
     frame_up->GetYaxis()->SetTitle(axisTitles[1].c_str());
     TH1D* frame_down = new TH1D();
@@ -446,7 +372,7 @@ TCanvas* FormattedPlot::getCanvasTDR(std::vector<PhysicsProcess*> procs) {
 
     TCanvas * can = st->tdrDiCanvas(templateHisto->GetTitle(),frame_up,frame_down,4,11,procs[0]->intLum[leptonCat]/1000.);
     can->cd(1);
-    TPad* padMain = (TPad*)can->GetPad(0);
+    TPad* padMain = (TPad*)can->GetPad(1);
     padMain->SetLogx(logxy.first);
     padMain->SetLogy(logxy.second);
 
@@ -483,13 +409,57 @@ TCanvas* FormattedPlot::getCanvasTDR(std::vector<PhysicsProcess*> procs) {
 
     delete st;
 
-    // Return the Canvas
-    return can;
+    // Return the vector of canvases (really only 1 canvas)
+    return {can};
 }
 
 // ------------------------------------------------------------
-TCanvas* FormattedPlot::getStackedCanvas(vector<PhysicsProcess*> procs)
-{
+vector<TCanvas*> FormattedPlot::getCanvas2DRatioTDR(std::vector<PhysicsProcess*> procs) {
+    Style* st = new Style();
+    st->setTDRStyle();
+    TGaxis::SetMaxDigits(3);
+
+    // Do the grouping of the histos and return the list of histograms to be plotted.
+    // This takes care of putting all the processes with the same groupName together
+    // typically SingleTop Histos together, or diboson together etc.
+    std::vector<TH1*> groupedHistos = doGrouping(procs);
+
+    TH1D* frame_up = new TH1D();
+    frame_up->GetXaxis()->SetLimits(range.first, range.second);
+    frame_up->GetXaxis()->SetMoreLogLabels();
+    frame_up->GetXaxis()->SetNoExponent();
+    frame_up->GetYaxis()->SetRangeUser(templateHisto->GetYaxis()->GetXmin(),templateHisto->GetYaxis()->GetXmax());
+    frame_up->GetXaxis()->SetTitle(axisTitles[0].c_str());
+    frame_up->GetYaxis()->SetTitle(axisTitles[1].c_str());
+
+    if(groupedHistos.size()%2!=0) {
+        cout << "ERROR::FormattedPlot::getCanvas2DRatioTDR The number of grouped histograms must be even." << endl;
+        return {};
+    }
+
+    vector<TCanvas*> ret;
+    for(unsigned int ih=0; ih<groupedHistos.size(); ih+=2) {
+        ret.push_back(st->tdrCanvas(Form("%s_%i",templateHisto->GetTitle(),ih),frame_up,4,0,false,procs[0]->intLum[leptonCat]/1000.,"colz"));
+        ret.back()->cd(1);
+        TPad* padMain = (TPad*)ret.back()->GetPad(0);
+        padMain->SetLogx(logxy.first);
+        padMain->SetLogy(logxy.second);
+    
+        groupedHistos[ih]->Divide(groupedHistos[ih+1]);
+        groupedHistos[ih]->GetZaxis()->SetTitle(axisTitles[2].c_str());
+        //Define the graphics option
+        st->tdrDraw(groupedHistos[ih],"colz");
+        ret.back()->RedrawAxis();
+    }
+
+    delete st;
+
+    // Return the vector of canvases
+    return ret;
+}
+
+// ------------------------------------------------------------
+vector<TCanvas*> FormattedPlot::getStackedCanvas(vector<PhysicsProcess*> procs) {
    // These flags are to determine if this FormattedPlot contains data or Monte Carlo histograms
    // With these flags, it is possible for the user to create canvases with only data or only Monte Carlo
    bool areMCHists = false;
@@ -713,12 +683,12 @@ TCanvas* FormattedPlot::getStackedCanvas(vector<PhysicsProcess*> procs)
    hRatio->Draw();
 
    // Return the Canvas
-   return can;
+   return {can};
 }
 
 // ------------------------------------------------------------
 // Just like the getCanvas member function, but in the TDR style
-TCanvas* FormattedPlot::getStackedCanvasTDR(vector<PhysicsProcess*> procs) {
+vector<TCanvas*> FormattedPlot::getStackedCanvasTDR(vector<PhysicsProcess*> procs) {
   Style* st = new Style();
   st->setTDRStyle();
   TGaxis::SetMaxDigits(3);
@@ -1029,7 +999,7 @@ TCanvas* FormattedPlot::getStackedCanvasTDR(vector<PhysicsProcess*> procs) {
   delete st;
 
   // Return the Canvas
-  return can;
+  return {can};
 }
 
 // ------------------------------------------------------------
@@ -1100,17 +1070,11 @@ void FormattedPlot::formatColors(vector<PhysicsProcess*> procs)
           proc_index = p;
       }
 
+      histos[i]->SetFillColor(kNone);
       histos[i]->SetLineColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
       histos[i]->SetMarkerColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
-      histos[i]->SetFillColor(kNone);
-      if(procs[proc_index]->name.Contains("HEM",TString::kIgnoreCase)) {
-         histos[i]->SetMarkerStyle(kOpenCircle);
-         histos[i]->SetMarkerSize(0.7);
-      }
-      else {
-         histos[i]->SetMarkerStyle(kFullCircle);
-         histos[i]->SetMarkerSize(0.7); 
-      }
+      histos[i]->SetMarkerStyle(((PlotterPhysicsProcess*)procs[proc_index])->marker);
+      histos[i]->SetMarkerSize(0.7);
    }
 }
 
@@ -1127,7 +1091,7 @@ void FormattedPlot::formatColorsStack(vector<PhysicsProcess*> procs)
       histos[i]->SetLineColor(kBlack);
       histos[i]->SetMarkerColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
       histos[i]->SetFillColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
-      if(procs[proc_index]->name.Contains("data",TString::kIgnoreCase)) {
+      if(DefaultValues::ci_find_substr(procs[i]->name,string("data"))!=-1) {
          histos[i]->SetMarkerStyle(20);
          histos[i]->SetMarkerSize(0.7);
       }

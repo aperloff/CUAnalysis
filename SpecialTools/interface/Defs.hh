@@ -4,6 +4,7 @@
 //ROOT libraries
 #include "TROOT.h"
 #include "TSystem.h"
+#include "TAttMarker.h"
 #include "TString.h"
 
 //C++ libraries
@@ -55,8 +56,11 @@ namespace DEFS{
     // A routine that returns the title for a given process type
     std::string getTypeTitle(Type type);
 
-    // A  routine that returns the Color_t for a given process type
+    // A routine that returns the Color_t for a given process type
     Color_t getProcessColor(Type type);
+
+    // A routine the returns the Marker_t for a given process type
+    Marker_t getProcessMarker(Type type);
     
   }// PhysicsProcess namespace
   typedef DEFS::PhysicsProcess::Type PhysicsProcessType ;
@@ -164,9 +168,8 @@ namespace DEFS{
   //            ALL ABOUT THE CUT LEVELS
   // ---------------------------------------------------------------
 
-   enum CutLevel {NtupleLevel, c0, c1, c2, c3, c4, c5, c6, BTag0, BTag1, BTag2, BTag3p};
-   static const unsigned int nCutLevel = 12;
-   static const unsigned int nFinalCutLevel = 7;
+  enum CutLevel {NtupleLevel, cut0, cut1, cut2, cut3, cut4, cut5, cut6, cut7, cut8, cut9};
+  static const unsigned int nCutLevel = 4;
 
   // A routine that returns a string given the type
   std::string getCutLevelString(CutLevel type);
@@ -178,8 +181,8 @@ namespace DEFS{
   //            ALL ABOUT THE CONTROL REGIONS
   // ---------------------------------------------------------------
 
-   enum ControlRegion {all, signal, control1, control2, control3, control4, control5, control6, control7, control8, control9, None};
-  static const unsigned int nControlRegion = 12;
+  enum ControlRegion {all, signal, control0, control1, control2, control3, control4, control5, control6, control7, control8, control9, None};
+  static const unsigned int nControlRegion = 13;
 
   //A routine that returns a string given the type
   std::string getControlRegionString(ControlRegion type);

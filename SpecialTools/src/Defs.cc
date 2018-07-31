@@ -103,10 +103,22 @@ namespace DEFS {
     // A routine that returns the title for a given process type
     std::string getTypeTitle(Type type) {
 
-       if (type == Data_EGamma || type == Data_JetHT || type == Data_MET || type == Data_SingleMuon)
-          return string("Data");
-       else if (type == Data_HEMiss_EGamma || type == Data_HEMiss_JetHT || type == Data_HEMiss_MET || type == Data_HEMiss_SingleMuon)
-          return string("Data (HEM)");
+       if (type == Data_EGamma)
+          return string("EGamma Data");
+       else if (type == Data_JetHT)
+          return string("JetHT Data");
+       else if (type == Data_MET)
+          return string("MET Data");
+       else if (type == Data_SingleMuon)
+          return string("SingleMuon Data");
+       else if (type == Data_HEMiss_EGamma)
+          return string("EGamma Data (HEM)");
+       else if(type == Data_HEMiss_JetHT)
+          return string("JetHT Data (HEM)");
+       else if (type == Data_HEMiss_MET)
+          return string("MET Data (HEM)");
+       else if (type == Data_HEMiss_SingleMuon)
+          return string("SingleMuon Data (HEM)");
        else if (type == RelVal_QCD_FlatPt_15_3000HS || type == RelVal_QCD_Pt_600_800 || type == RelVal_QCD_Pt_80_120)
           return string("QCD");
        else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100)
@@ -127,8 +139,14 @@ namespace DEFS {
     // A  routine that returns the Color_t for a given process type
     Color_t getProcessColor(Type type){
 
-       if      (type == Data_EGamma || type == Data_JetHT || type == Data_MET || type == Data_SingleMuon) return kBlack;
-       else if (type == Data_HEMiss_EGamma || type == Data_HEMiss_JetHT || type == Data_HEMiss_MET || type == Data_HEMiss_SingleMuon) return kRed;
+       if      (type == Data_EGamma) return kGray;
+       else if (type == Data_JetHT) return kGray+1;
+       else if (type == Data_MET) return kBlack;
+       else if (type == Data_SingleMuon) return kGray+2;
+       else if (type == Data_HEMiss_EGamma) return kRed-7;
+       else if (type == Data_HEMiss_JetHT) return kRed+2;
+       else if (type == Data_HEMiss_MET) return kRed;
+       else if (type == Data_HEMiss_SingleMuon) return kRed+3;
        else if (type == RelVal_QCD_FlatPt_15_3000HS || type == RelVal_QCD_Pt_600_800 || type == RelVal_QCD_Pt_80_120 || 
                 type == RelValHEMiss_QCD_FlatPt_15_3000HS || type == RelValHEMiss_QCD_Pt_600_800 || type == RelValHEMiss_QCD_Pt_80_120) return kRed-6;
        else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100 || type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100) return kMagenta-3;
@@ -141,6 +159,33 @@ namespace DEFS {
        return kBlack;
        
     }//getProcessColor
+
+    //---------------------------------------------------------------------------
+    // A routine that returns the Marker_t for a given process type
+    Color_t getProcessMarker(Type type){
+
+       if      (type == Data_EGamma) return kFullSquare;
+       else if (type == Data_JetHT) return kFullTriangleUp;
+       else if (type == Data_MET) return kFullCircle;
+       else if (type == Data_SingleMuon) return kFullTriangleDown;
+       else if (type == Data_HEMiss_EGamma) return kOpenSquare;
+       else if (type == Data_HEMiss_JetHT) return kOpenTriangleUp;
+       else if (type == Data_HEMiss_MET) return kOpenCircle;
+       else if (type == Data_HEMiss_SingleMuon) return kOpenTriangleDown;
+       else if (type == RelVal_QCD_FlatPt_15_3000HS || type == RelVal_QCD_Pt_600_800 || type == RelVal_QCD_Pt_80_120) return kFullTriangleDown;
+       else if (type == RelValHEMiss_QCD_FlatPt_15_3000HS || type == RelValHEMiss_QCD_Pt_600_800 || type == RelValHEMiss_QCD_Pt_80_120) return kOpenTriangleDown;
+       else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100) return kFullCircle;
+       else if (type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100) return kOpenCircle;
+       else if (type == RelVal_TTbar) return kFullTriangleUp;
+       else if (type == RelValHEMiss_TTbar) return kOpenTriangleUp;
+       else{
+          cout << "WARNING Plotter::GetProcessColor() Unknown process name=|"<<getTypeString(type)
+               <<"|. Returning process marker as kFullCircle." << endl;
+       }
+       
+       return kFullCircle;
+       
+    }//getProcessMarker
 
   } //namespace   
    
@@ -356,18 +401,17 @@ namespace DEFS {
   //---------------------------------------------------------------------------
   string getCutLevelString(CutLevel type) {
      
-    if (type == NtupleLevel)   return "NtupleLevel";
-    else if (type == c0)       return "c0:NJets";
-    else if (type == c1)       return "c1:HLT+Kin";
-    else if (type == c2)       return "c2:VtxCut";
-    else if (type == c3)       return "c3:PrimaryEl/Mu";
-    else if (type == c4)       return "c4:NotLooseMu";
-    else if (type == c5)       return "c5:NotLooseEl";
-    else if (type == c6)       return "c6:METE";
-    else if (type == BTag0)    return "BTag0";
-    else if (type == BTag1)    return "BTag1";
-    else if (type == BTag2)    return "BTag2";
-    else if (type == BTag3p)   return "BTag3+";
+    if      (type == NtupleLevel) return "NtupleLevel";
+    else if (type == cut0)        return "c0:Filters";
+    else if (type == cut1)        return "c1:Triggers";
+    else if (type == cut2)        return "c2:NLeptons";
+    else if (type == cut3)        return "c3:";
+    else if (type == cut4)        return "c4:";
+    else if (type == cut5)        return "c5:";
+    else if (type == cut6)        return "c6:";
+    else if (type == cut7)        return "c7:";
+    else if (type == cut8)        return "c8:";
+    else if (type == cut9)        return "c9:";
 
     cout <<"ERROR  DEFS::getCutLevelString cannot find the given type"<<endl;
     return "ERROR";
@@ -376,18 +420,17 @@ namespace DEFS {
 
    DEFS::CutLevel getCutLevel(std::string str) {
 
-    if (str == "NtupleLevel")          return NtupleLevel;
-    else if (str == "c0:NJets")        return c0;
-    else if (str == "c1:HLT+Kin")      return c1;
-    else if (str == "c2:VtxCut")       return c2;
-    else if (str == "c3:PrimaryEl/Mu") return c3;
-    else if (str == "c4:NotLooseMu")   return c4;
-    else if (str == "c5:NotLooseEl")   return c5;
-    else if (str == "c6:METE")         return c6;
-    else if (str == "BTag0")           return BTag0;
-    else if (str == "BTag1")           return BTag1;
-    else if (str == "BTag2")           return BTag2;
-    else if (str == "BTag3+")          return BTag3p;
+    if      (str == "NtupleLevel") return NtupleLevel;
+    else if (str == "c0:Filters")  return cut0;
+    else if (str == "c1:Triggers") return cut1;
+    else if (str == "c2:NLeptons") return cut2;
+    else if (str == "c3:")         return cut3;
+    else if (str == "c4:")         return cut4;
+    else if (str == "c5:")         return cut5;
+    else if (str == "c6:")         return cut6;
+    else if (str == "c7:")         return cut7;
+    else if (str == "c8:")         return cut8;
+    else if (str == "c9:")         return cut9;
 
     cout<<"ERROR  DEFS::getCutLevel cannot find the given string"<<endl;
     return NtupleLevel;
@@ -400,6 +443,7 @@ namespace DEFS {
       
       if (type == all)           return "all";
       else if (type == signal)   return "signal";
+      else if (type == control0) return "control0";
       else if (type == control1) return "control1";
       else if (type == control2) return "control2";
       else if (type == control3) return "control3";
@@ -421,6 +465,7 @@ namespace DEFS {
       
       if (str == "all")           return all;
       else if (str == "signal")   return signal;
+      else if (str == "control0") return control0;
       else if (str == "control1") return control1;
       else if (str == "control2") return control2;
       else if (str == "control3") return control3;

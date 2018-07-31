@@ -183,7 +183,7 @@ PhysicsProcess * DefaultValues::getSingleProcess(DEFS::PhysicsProcessType proces
    // Create the PhysicsProcess
    PhysicsProcess *  proc;
    if(forPlots)
-      proc =  new PlotterPhysicsProcess(prName, getTypeTitle(process), cellFile->text, getProcessColor(process), DEFS::getTreeName(ntupleType,jetBin));
+      proc =  new PlotterPhysicsProcess(prName, getTypeTitle(process), cellFile->text, DEFS::getTreeName(ntupleType,jetBin), getProcessColor(process), getProcessMarker(process));
    else
       proc =  new PhysicsProcess(prName, getTypeTitle(process), cellFile->text, DEFS::getTreeName(ntupleType,jetBin));
    proc->setPhysicsParameters(xsec, lumi, br, numMCEvts, sf);
@@ -280,13 +280,13 @@ vector < PhysicsProcess * > DefaultValues::getProcessesHEM(DEFS::JetBin jetBin,
   vector<DEFS::PhysicsProcess::Type> procs;
 
   if (include_data) {
-    //procs.push_back(DEFS::PhysicsProcess::Data_EGamma);
-    //procs.push_back(DEFS::PhysicsProcess::Data_JetHT);
     procs.push_back(DEFS::PhysicsProcess::Data_MET);
+    procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_MET);
+    procs.push_back(DEFS::PhysicsProcess::Data_JetHT);
+    procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_JetHT);
+    //procs.push_back(DEFS::PhysicsProcess::Data_EGamma);
     //procs.push_back(DEFS::PhysicsProcess::Data_SingleMuon);
     //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_EGamma);
-    //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_JetHT);
-    procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_MET);
     //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_SingleMuon);
   }
   else {
@@ -294,8 +294,8 @@ vector < PhysicsProcess * > DefaultValues::getProcessesHEM(DEFS::JetBin jetBin,
     procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_TTbar);
     procs.push_back(DEFS::PhysicsProcess::RelVal_SMS_T1tttt_mGl1500_mLSP100);
     procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100);
-    //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS);
-    //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS);
+    procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS);
+    procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS);
     //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_Pt_80_120);
     //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_80_120);
     //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_Pt_600_800);
@@ -305,17 +305,6 @@ vector < PhysicsProcess * > DefaultValues::getProcessesHEM(DEFS::JetBin jetBin,
    return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType);
 
 }//getProcessesHEM
-
-
-
-
-
-
-
-
-
-
-
 
 // ----------------------------------------------------------------------------
 vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin jetBin,
@@ -339,14 +328,14 @@ vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin jetBin,
     //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_SingleMuon);
   }
   else {
-    //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS);
     //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_Pt_600_800);
     //procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_Pt_80_120);
+    procs.push_back(DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS);
     procs.push_back(DEFS::PhysicsProcess::RelVal_SMS_T1tttt_mGl1500_mLSP100);
     procs.push_back(DEFS::PhysicsProcess::RelVal_TTbar);
-    //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS);
     //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_600_800);
     //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_80_120);
+    procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS);
     procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100);
     procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_TTbar);
   }
@@ -354,10 +343,6 @@ vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin jetBin,
    return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType);
 
 }//getProcessesRA2b
-
-
-
-
 
 // ----------------------------------------------------------------------------
 pair<double,double> DefaultValues::getCrossSectionAndError(TString channelName)
