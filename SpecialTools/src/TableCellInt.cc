@@ -175,3 +175,4 @@ int TableCellInt::getValue() {
   //return std::atoi(oss.str().c_str());
 }
 
+ClassImp(TableCellInt)

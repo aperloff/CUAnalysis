@@ -121,6 +121,7 @@ public :
   // Provide an iterator for code simplification.
   typedef  std::vector<TableRow>::iterator tableRows_it;
 
+  ClassDef (Table,1)
 };
 
 #endif

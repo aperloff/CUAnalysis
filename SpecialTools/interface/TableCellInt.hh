@@ -61,6 +61,7 @@ public:
   // the value stored in the cell
   int val;
 
+  ClassDef (TableCellInt,1)
 };
 
 #endif

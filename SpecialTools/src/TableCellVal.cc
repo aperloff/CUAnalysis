@@ -194,3 +194,4 @@ TableCellVal & TableCellVal::operator=(Value rhs) const {
    return *res;
 }
 
+ClassImp(TableCellVal)

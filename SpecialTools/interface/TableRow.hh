@@ -42,6 +42,7 @@ class TableRow  : public TNamed {
 
   std::vector<TableCell*>  cellEntries; // The entries in each cell of this row 
 
+  ClassDef (TableRow,1)
 };// TableRow
 
 

@@ -63,6 +63,7 @@ public:
   // the value stored in the cell
   Value val;
 
+  ClassDef (TableCellVal,1)
 };
 
 #endif

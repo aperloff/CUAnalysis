@@ -79,3 +79,4 @@ TableCellText TableCellText::operator-(const TableCell &rhs) const {
   return res;
 }
 
+ClassImp(TableCellText)

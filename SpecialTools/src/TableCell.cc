@@ -21,3 +21,4 @@ TableCell::TableCell(string name){
   SetName(name.c_str());
 }
 
+ClassImp(TableCell)

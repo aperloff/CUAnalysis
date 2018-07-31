@@ -48,6 +48,7 @@ public:
 
       inline bool operator< (const Value&) const;
 
+      ClassDef(Value, 1)
 };
 
 

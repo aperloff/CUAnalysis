@@ -1,0 +1,23 @@
+<lcgdict>
+   <class name="TableCellText" ClassVersion="1">
+   		<version ClassVersion="1" checksum="3140512570"/>
+   </class>
+   <class name="TableCellInt" ClassVersion="1">
+   		<version ClassVersion="1" checksum="613955352"/>
+   </class>
+   <class name="TableCellVal" ClassVersion="1">
+   		<version ClassVersion="1" checksum="2580259816"/>
+   </class>
+   <class name="Value" ClassVersion="1">
+         <version ClassVersion="1" checksum="2858327906"/>
+   </class>
+   <class name="TableCell" ClassVersion="1">
+   		<version ClassVersion="1" checksum="1366132523"/>
+   </class>
+   <class name="TableRow" ClassVersion="1">
+   		<version ClassVersion="1" checksum="2953015294"/>
+   </class>
+   <class name="Table" ClassVersion="1">
+ 		<version ClassVersion="1" checksum="2509712306"/>
+   </class>
+</lcgdict>

@@ -58,6 +58,7 @@ public:
   // provide a virtual clone method to all the derived classes.
   virtual TableCell * clone() const = 0;
   
+  ClassDef (TableCell,1)
 };
 
 #endif

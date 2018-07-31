@@ -46,6 +46,7 @@ public:
   // provide a virtual clone method to all the derived classes.
   virtual TableCellText * clone() const { return new TableCellText(*this);}
 
+  ClassDef (TableCellText,1)
 };
 
 #endif

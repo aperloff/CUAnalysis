@@ -94,3 +94,5 @@ TableCell* TableRow::operator[](std::string col) {
    return 0;
 
 }//operator[]
+
+ClassImp(TableRow)

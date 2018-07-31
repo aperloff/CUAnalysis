@@ -776,3 +776,4 @@ int Table::Merge(TCollection *list){
    return tableRows.size();
 }//Merge
 
+ClassImp(Table)
