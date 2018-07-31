@@ -148,8 +148,8 @@ void UserFunctions::fillPlots(MapOfPlots &  plots, TString processName, EventNtu
         // NJets in HEM region
         int nJetCounter = 0;
         for(auto jet : *(ntuple->Jets)) {
-            //HEM 15/16 problem at -3<eta<-1.4 and 280<phi<320 (-1.3962634<phi<-0.698131701)
-            if(jet.Eta()<-1.4 && jet.Eta()>-3 && jet.Phi()>-1.3962634 && jet.Phi()<-0.698131701 && jet.Pt()>=30. && abs(jet.Eta())<=2.4)
+            //HEM 15/16 problem at -3<eta<-1.4 and 270<phi<310 (-1.5707963268<phi<-0.872664626)
+            if(jet.Eta()<-1.4 && jet.Eta()>-3 && jet.Phi()>-1.5707963268 && jet.Phi()<-0.872664626 && jet.Pt()>=30. && abs(jet.Eta())<=2.4)
                 nJetCounter++;
         }
         plots[leptonCat]["NJets_HEMRegion"]->Fill(nJetCounter,weight);
@@ -331,7 +331,7 @@ void writePlotsToFile(string outputDirectory, string outputFilename,
                       Table &cutFlow);
 
 /// returns a map containing all of the plots that will be made for each process and their specific attributes
-PlotFiller::MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool norm_data);
+PlotFiller::MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData);
 
 /// Make a table of the plot names from the MapOfPlots (optional: print the table to the command line)
 Table makePlotTable(MapOfPlots& plots);
@@ -373,7 +373,7 @@ int main(int argc,char**argv) {
     UserFunctions::leptonBin              = DEFS::getLeptonBin     (lepBin);
     UserFunctions::limitBranches          = cl.getValue<int>       ("limitBranches",              0);
     int              maxEvts              = cl.getValue<int>       ("maxEvents",                  0);
-    bool             norm_data            = cl.getValue<bool>      ("norm_data",              false);
+    bool             normToData           = cl.getValue<bool>      ("normToData",             false);
     string           ntype                = cl.getValue<string>    ("ntype",          "EventNtuple");
     UserFunctions::ntupleType             = DEFS::getNtupleType    (ntype);
     string           outputDirectory      = cl.getValue<string>    ("outputDirectory",          ".");
@@ -414,7 +414,7 @@ int main(int argc,char**argv) {
 
 
     // The vector containing all plots to be made
-    MapOfPlots plots = getPlots(UserFunctions::leptonCat,norm_data);
+    MapOfPlots plots = getPlots(UserFunctions::leptonCat,normToData);
 
     // Make a table of the plots to be run
     Table plotTable = makePlotTable(plots);
@@ -601,7 +601,7 @@ void writePlotsToFile(string outputDirectory, string outputFilename,
 } //writePlotsToFile
 
 //______________________________________________________________________________
-MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool norm_data){
+MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData){
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("getPlotsForLeptonCat");
 
@@ -788,7 +788,7 @@ MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool norm_data){
     }
 
     for(auto iplot=plots[leptonCat].begin(); iplot!=plots[leptonCat].end(); iplot++) {
-        dynamic_cast<FormattedPlot*>(iplot->second)->normToData = norm_data;
+        dynamic_cast<FormattedPlot*>(iplot->second)->normToData = normToData;
         dynamic_cast<FormattedPlot*>(iplot->second)->stacked = false;
         dynamic_cast<FormattedPlot*>(iplot->second)->leptonCat = leptonCat;
         dynamic_cast<FormattedPlot*>(iplot->second)->jetBin = UserFunctions::jetBin;
@@ -807,7 +807,7 @@ MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool norm_data){
 
 
 //______________________________________________________________________________
-MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool norm_data){
+MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData){
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("getPlots");
 
@@ -815,7 +815,7 @@ MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool norm_data){
     MapOfPlots plots;
 
     //Add plots based on category
-    MapOfPlots plots_cat = getPlotsForCat(leptonCat, norm_data);
+    MapOfPlots plots_cat = getPlotsForCat(leptonCat, normToData);
     plots.insert(plots_cat.begin(),plots_cat.end());
 
     if(UserFunctions::doBenchmarks)

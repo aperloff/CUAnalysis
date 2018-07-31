@@ -71,69 +71,52 @@ void Plot::Fill(vector<Double_t> coord, double v, double w){
 // Do the scaling to luminosity or data.
 void Plot::scaleToData(vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat)
 {
-   // Make sure we can't do the scaling twice
-   if (scaled)
-      return;
+    // Make sure we can't do the scaling twice
+    if (scaled)
+        return;
   
-   // Make sure that the number of histos and processes is the same
-   if (procs.size() != histos.size())
-   {
-      cout<<"ERROR Plot::scaleToData() wrong sizes. Something is wrong"<<endl;
-      return;
-   }
+    // Make sure that the number of histos and processes is the same
+    try {
+        mismatch_exception::areEqual(procs.size(),histos.size());
+    }
+    catch (mismatch_exception& e) {
+        std::cerr << "ERROR Plot::scaleToData There must be an equal number of processes and histograms in a given plot." << endl;
+        std::cerr << e.what(string("procs"),string("histos"));
+        std::terminate();
+    }
 
-   // First normalize to luminosity, and in case we might need to normalize to data
-   // obtain also the total MC and total data
-   double totalData = 0;
-   double totalMC = 0;
-   for (unsigned int p = 0 ; p < procs.size() ; p++)
-   {
-      //cout << "Normalizing to luminosity and cross section..." << endl;
-      
-      // This works for MC and data as well.
-      histos[p]->Scale(procs[p]->getScaleFactor(lepCat));
-      //cout << " histo="<<histos[p]->GetTitle()<<"\tscaleFactor="<<procs[p]->getScaleFactor(lepCat) << "\tleptonCat=" << DEFS::getLeptonCatString(lepCat) << endl;
-      //cout<<" histo="<<histos[p]->GetTitle()<<", has Integral()="<<histos[p]->Integral()<<endl;
+    // First normalize to luminosity, and in case we might need to normalize to data
+    // obtain also the total MC and total data
+    double totalData = 0;
+    double totalMC = 0;
+    for (unsigned int p = 0 ; p < procs.size() ; p++) {
+        histos[p]->Scale(procs[p]->getScaleFactor(lepCat));
 
-      TString hName = histos[p]->GetTitle();
-      hName.ToUpper();
-      if ( hName.Contains("DATA") )
-         totalData += histos[p]->Integral();
-      else 
-         totalMC += histos[p]->Integral();
-   }
+        string hName = histos[p]->GetTitle();
+        hName.ToUpper();
+        if ( DefaultValues::ci_find_substr(hName,string("data"))!=-1 )
+            totalData += histos[p]->Integral();
+        else 
+            totalMC += histos[p]->Integral();
+    }
    
-   // If norm to data do the scaling of the all the MC to the data
-   if (normToData)
-   {
-      //cout<<"Normalizing to data..."<<endl;
+    // If norm to data do the scaling of the all the MC to the data
+    if (normToData) {
+        if (totalData == 0) {
+            cout<<"ERROR  Plot::scaleToData() integral of data is zero, cannot normalize to data."
+                <<"WILL NOT NORMALIZE"<<endl;
+            return;
+        }
       
-      if (totalData == 0)
-      {
-         cout<<"ERROR  Plot::scaleToData() integral of data is zero, cannot normalize to data."
-             <<"WILL NOT NORMALIZE"<<endl;
-         return;
-      }
-      
-      //cout<<" totalData = "<<totalData<<"  totalMC = "<<totalMC<<endl;
-      
-      for (unsigned int p = 0 ; p < procs.size() ; p++)
-      {
-         // This works for MC and data as well.
-         //histos[p]->Scale(procs[p]->getScaleFactor());
-      
-         TString hName = histos[p]->GetTitle();
-         hName.ToUpper();
-         if (!hName.Contains("DATA") )
-            histos[p]->Scale(totalData/totalMC);
-         
-         //cout<<"AfterNorm histo="<<histos[p]->GetTitle()<<", has Integral()="<<histos[p]->Integral()<<endl; 
-      }
-    
-   }
+        for (unsigned int p = 0 ; p < procs.size() ; p++) {
+            string hName = histos[p]->GetTitle();
+            if ( DefaultValues::ci_find_substr(hName,string("data"))==-1 )
+                histos[p]->Scale(totalData/totalMC);
+        }
+    }
    
-   //set this flag to true so we won't do the scaling again.
-   scaled = true;
+    //set this flag to true so we won't do the scaling again.
+    scaled = true;
 }
 
 void Plot::saveHistogramsToFile(string histoFile, string option, string directory) {

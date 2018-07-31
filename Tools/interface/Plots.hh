@@ -25,6 +25,7 @@
 #include "TGaxis.h"
 
 // Our libraries
+#include "CUAnalysis/SpecialTools/interface/Exceptions.hh"
 #include "CUAnalysis/SpecialTools/interface/PhysicsProcess.hh"
 #include "CUAnalysis/SpecialTools/interface/Defs.hh"
 #include "CUAnalysis/SpecialTools/interface/DefaultValues.hh"
