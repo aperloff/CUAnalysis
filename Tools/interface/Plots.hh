@@ -89,11 +89,12 @@ public :
    
    bool stacked;
    bool normToData;
+   float luminosity;
 
 protected:
    bool scaled;
 
-   ClassDef (Plot,2);   
+   ClassDef (Plot,3);   
 };
 
 // ##################################################
@@ -110,11 +111,11 @@ public:
    ~FormattedPlot() {};
    
    // Make the canvas here
-   vector<TCanvas*> getCanvasTDR(std::vector<PhysicsProcess*> procs);
-   vector<TCanvas*> getCanvas1DTDR(std::vector<PhysicsProcess*> procs);
-   vector<TCanvas*> getCanvas2DRatioTDR(std::vector<PhysicsProcess*> procs);
-   vector<TCanvas*> getStackedCanvas(std::vector<PhysicsProcess*> procs);
-   vector<TCanvas*> getStackedCanvasTDR(std::vector<PhysicsProcess*> procs);
+   std::vector<TCanvas*> getCanvasTDR(std::vector<PhysicsProcess*> procs);
+   std::vector<TCanvas*> getCanvas1DTDR(std::vector<PhysicsProcess*> procs);
+   std::vector<TCanvas*> getCanvas2DRatioTDR(std::vector<PhysicsProcess*> procs);
+   std::vector<TCanvas*> getStackedCanvas(std::vector<PhysicsProcess*> procs);
+   std::vector<TCanvas*> getStackedCanvasTDR(std::vector<PhysicsProcess*> procs);
 
    // Do the grouping of histograms according to histo->title, which is process groupName;
    std::vector<TH1*> doGrouping(std::vector<PhysicsProcess*> procs);
@@ -130,7 +131,7 @@ public:
    void addSystematicErrors(TGraphAsymmErrors* g, TH1* nominal, TH1* sysUp, TH1* sysDown, string type = "");
 
    // Function to get chi2 and KS
-   void drawKSandChi2Tests(TH1* totalData, TH1* all, pair<double, double> range, bool doTDR = false, Style* st = 0);
+   void drawKSandChi2Tests(TH1* totalData, TH1* all, std::pair<double, double> range, bool doTDR = false, Style* st = 0);
 
    // Function to get luminosity
    void drawLumi(float intLum);
@@ -168,9 +169,9 @@ private:
    void formatRatio(TH1* hRatio);
    void formatStack(THStack * stack, double maxi);
    TH1 * findTitleInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
-   TH1 * titleContainedInTH1Vector(TString title, vector<TH1*> groupedHistos);
+   TH1 * titleContainedInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
 
-   ClassDef (FormattedPlot,3);
+   ClassDef (FormattedPlot,4);
 };
 
 #endif

@@ -7,8 +7,8 @@
 #include "CUAnalysis/SpecialTools/interface/Value.hh"
 #include "CUAnalysis/SpecialTools/interface/Defs.hh"
 #include "CUAnalysis/SpecialTools/interface/DefaultValues.hh"
+#include "CUAnalysis/SpecialTools/interface/VectorUtilities.hh"
 #include "CUAnalysis/Tools/interface/mymath.hh"
-#include "CUAnalysis/Tools/interface/Plots.hh"
 #include "CUAnalysis/Tools/interface/PlotFiller.hh"
 #include "CUAnalysis/Tools/interface/PUreweight.hh"
 #include "CUAnalysis/Tools/interface/CommandLine.h"
@@ -42,8 +42,6 @@
 using namespace std;
 using DEFS::LeptonCat;
 
-typedef PlotFiller::MapOfPlots MapOfPlots;
-
 namespace UserFunctions
 {
     TString signalTitle;
@@ -58,7 +56,6 @@ namespace UserFunctions
     PUreweight* puweight;
     bool doPUreweight;
     TString pileupSystematic;
-    vector<string> formats;
     bool verbose; // adds or takes away cout statements when running
     bool doBenchmarks = false;
     TBenchmark* func_benchmark  = new TBenchmark();
@@ -72,7 +69,7 @@ namespace UserFunctions
     void initEventFunc(EventNtuple *ntuple, const PhysicsProcess* proc);
 
     // this function fills all of the plots for a given process
-    void fillPlots(MapOfPlots &plots, TString processName, EventNtuple *ntuple, double weight = 1.0);
+    void fillPlots(PlotFiller::MapOfPlots &plots, TString processName, EventNtuple *ntuple, double weight = 1.0);
 
     // returns a boolean if the event passes the specified cuts
     bool eventPassCuts(EventNtuple *ntuple, const PhysicsProcess* proc, Table &cutFlow);                              
@@ -98,7 +95,7 @@ namespace UserFunctions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void UserFunctions::fillPlots(MapOfPlots &  plots, TString processName, EventNtuple * ntuple, double weight) {
+void UserFunctions::fillPlots(PlotFiller::MapOfPlots &  plots, TString processName, EventNtuple * ntuple, double weight) {
     if(UserFunctions::doBenchmarks)
         UserFunctions::func_benchmark->Start("fillPlots");
 
@@ -195,7 +192,7 @@ bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* pr
                                         "HLT_PFMET120_PFMHT120_IDTight_v","HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
                                         "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v","HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"};
    
-    vector<int> trigger_indices = DefaultValues::vfind_many(*(ntuple->TriggerNames),triggers_to_check);
+    vector<int> trigger_indices = utilities::vfind_many(*(ntuple->TriggerNames),triggers_to_check);
     //loop over trigger names
     bool goodTrigger = false;
     for(unsigned h = 0; h < trigger_indices.size(); h++){
@@ -320,21 +317,25 @@ std::string UserFunctions::concatString(const T& obj1, const U& obj2) {
 ////////////////////////////////////////////////////////////////////////////////
 
 ///  fills the histograms and controls the output canvas and file for the rest of the program
-void doPlotter(MapOfPlots& plots, vector<PhysicsProcess*> procs, Table& cutFlow, int maxEvents);
+void doPlotter(PlotFiller::MapOfPlots& plots, vector<PhysicsProcess*> procs, Table& cutFlow, int maxEvents);
 
 /// get the formatted canvases
-vector<TCanvas*> getCanvases(MapOfPlots & plots, vector<PhysicsProcess*> procs);
+vector<TCanvas*> getCanvases(PlotFiller::MapOfPlots & plots, vector<PhysicsProcess*> procs);
 
-/// write the Canvases and plots to output files 
-void writePlotsToFile(string outputDirectory, string outputFilename,
-                      MapOfPlots & plots, vector<TCanvas*> canvases,
-                      Table &cutFlow);
+/// write the canvases to a ROOT file and to <formats>
+void writeCanvasesToFiles(TFile &ofile, string outputDirectory, vector<TCanvas*> canvases, string suffix, vector<string> formats);
+
+/// write the histograms to a ROOT file
+void writeHistogramsToFile(TFile &ofile, PlotFiller::MapOfPlots & plots);
 
 /// returns a map containing all of the plots that will be made for each process and their specific attributes
-PlotFiller::MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData);
+PlotFiller::MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData, float luminosity);
+
+/// duplicate a set of plots, defined by the plots_to_logify vector, and reset their logxy values 
+void logify(PlotFiller::MapOfPlots &plots, std::vector<std::string> plots_to_logify, pair<bool,bool> logxy);
 
 /// Make a table of the plot names from the MapOfPlots (optional: print the table to the command line)
-Table makePlotTable(MapOfPlots& plots);
+Table makePlotTable(PlotFiller::MapOfPlots& plots);
 
 /// Make a table of cuts for each of the processes
 Table getInitializedCutTable(const vector<PhysicsProcess*> &procs);
@@ -353,36 +354,42 @@ int main(int argc,char**argv) {
     CommandLine cl;
     if (!cl.parse(argc,argv)) return 0;
 
-    string           anaCat               = cl.getValue<string>    ("ana",            "HEMAnalysis");
+    string           alternateDataFile    = cl.getValue<string>    ("alternateDataFile",          "");
+    string           anaCat               = cl.getValue<string>    ("ana",             "HEMAnalysis");
     UserFunctions::analysisCat            = DEFS::Ana::getAnaType  (anaCat);
-    string           cutRegion            = cl.getValue<string>    ("cutRegion",              "all");
+    int              batchNumber          = cl.getValue<int>       ("batchNumber",                -1);
+    string           cutRegion            = cl.getValue<string>    ("cutRegion",               "all");
     UserFunctions::controlRegion          = DEFS::getControlRegion (cutRegion);
-    bool             debug                = cl.getValue<bool>      ("debug",                  false);
-    UserFunctions::doBenchmarks           = cl.getValue<bool>      ("doBenchmarks",           false);
-    UserFunctions::doPUreweight           = cl.getValue<bool>      ("doPUrewt",                true);
-    UserFunctions::formats                = cl.getVector<string>   ("formats",        ".png:::.eps");
-    bool             help                 = cl.getValue<bool>      ("help",                   false);
-    bool             include_data         = cl.getValue<bool>      ("include_data",            true);
-    bool             include_systematics  = cl.getValue<bool>      ("include_systematics",    false);
-    string           inputFilename        = cl.getValue<bool>      ("inputFilename",  "output.root");
-    string           jBin                 = cl.getValue<string>    ("jBin",                 "jets2");      
+    bool             debug                = cl.getValue<bool>      ("debug",                   false);
+    UserFunctions::doBenchmarks           = cl.getValue<bool>      ("doBenchmarks",            false);
+    UserFunctions::doPUreweight           = cl.getValue<bool>      ("doPUrewt",                 true);
+    vector<string>   formats              = cl.getVector<string>   ("formats",         ".png:::.eps");
+    bool             help                 = cl.getValue<bool>      ("help",                    false);
+    bool             include_data         = cl.getValue<bool>      ("include_data",             true);
+    bool             include_systematics  = cl.getValue<bool>      ("include_systematics",     false);
+    string           inputFilename        = cl.getValue<string>    ("inputFilename",              "");
+    string           inputDirectoryName   = cl.getValue<string>    ("inputDirectoryName", "canvases");
+    bool             isCombinedFile       = cl.getValue<bool>      ("isCombinedFile",          false);
+    string           jBin                 = cl.getValue<string>    ("jBin",                  "jets2");      
     UserFunctions::jetBin                 = DEFS::getJetBin        (jBin);
-    string           lepCat               = cl.getValue<string>    ("lep",                   "both");
+    string           lepCat               = cl.getValue<string>    ("lep",                    "both");
     UserFunctions::leptonCat              = DEFS::getLeptonCat     (lepCat);
-    string           lepBin               = cl.getValue<string>    ("lepBin",            "leptons0");
+    string           lepBin               = cl.getValue<string>    ("lepBin",             "leptons0");
     UserFunctions::leptonBin              = DEFS::getLeptonBin     (lepBin);
-    UserFunctions::limitBranches          = cl.getValue<int>       ("limitBranches",              0);
-    int              maxEvts              = cl.getValue<int>       ("maxEvents",                  0);
-    bool             normToData           = cl.getValue<bool>      ("normToData",             false);
-    string           ntype                = cl.getValue<string>    ("ntype",          "EventNtuple");
+    UserFunctions::limitBranches          = cl.getValue<int>       ("limitBranches",               0);
+    float            luminosity           = cl.getValue<float>     ("luminosity",            34558.0); //pb-1
+    int              maxEvts              = cl.getValue<int>       ("maxEvents",                   0);
+    bool             normToData           = cl.getValue<bool>      ("normToData",              false);
+    string           ntype                = cl.getValue<string>    ("ntype",           "EventNtuple");
     UserFunctions::ntupleType             = DEFS::getNtupleType    (ntype);
-    string           outputDirectory      = cl.getValue<string>    ("outputDirectory",          ".");
-    string           outputFilename       = cl.getValue<string>    ("outputFilename", "output.root");
-    UserFunctions::pileupSystematic       = cl.getValue<TString>   ("pileupSystematic",   "nominal");
-    UserFunctions::signalTitle            = cl.getValue<TString>   ("signalTitle",     "H(125)->WW");
-    string           tcat                 = cl.getValue<string>    ("tcat",                "pretag");
+    string           outputDirectory      = cl.getValue<string>    ("outputDirectory",           ".");
+    string           outputFilename       = cl.getValue<string>    ("outputFilename",  "output.root");
+    UserFunctions::pileupSystematic       = cl.getValue<TString>   ("pileupSystematic",    "nominal");
+    UserFunctions::signalTitle            = cl.getValue<TString>   ("signalTitle",      "H(125)->WW");
+    string           suffix               = cl.getValue<string>    ("suffix",                     "");
+    string           tcat                 = cl.getValue<string>    ("tcat",                 "pretag");
     UserFunctions::tagCat                 = DEFS::getTagCat(tcat);
-    UserFunctions::verbose                = cl.getValue<bool>      ("verbose",                false);
+    UserFunctions::verbose                = cl.getValue<bool>      ("verbose",                 false);
 
     if (help) {cl.print(); return 0;}
     if (!cl.check()) return -1;
@@ -394,14 +401,8 @@ int main(int argc,char**argv) {
         return -2;
     }
 
-    // Check that the leptcat is not both as we are not ready for it. 
-    // Problems if combining:
-    // - we have to figure out how to include two lums.
-    // - we have to figure out how to cut on one category but not the other.
-    //if (UserFunctions::leptonCat == DEFS::both) {
-    //   cout<<"plotter_x called with lepton category both. WE HAVE NOT FIXED THIS TO WORK YET."<<lepCat<<endl;
-    //   return 1;
-    //}
+    // if is a combined file, don't need to get the systematic processes
+    if(isCombinedFile) include_systematics = false;
 
     // Tell ROOT to not print useless INFO
     gErrorIgnoreLevel = kWarning;
@@ -411,13 +412,6 @@ int main(int argc,char**argv) {
     m_benchmark->Start("plotter_x");
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Reset();
-
-
-    // The vector containing all plots to be made
-    MapOfPlots plots = getPlots(UserFunctions::leptonCat,normToData);
-
-    // Make a table of the plots to be run
-    Table plotTable = makePlotTable(plots);
    
     // The vector holding all processes.
     vector <PhysicsProcess*> procs;
@@ -441,60 +435,136 @@ int main(int argc,char**argv) {
         return -3;
     }
 
-    // Report Scale Factors
-    unsigned int maxNameLength = 0;
-    for(auto p : procs) {
-        if(p->name.size()>maxNameLength)
-           maxNameLength = p->name.size(); 
-    }
-
-    cout << endl << "Process " << setw(maxNameLength) << "<name>" << " will be scaled by " << setw(15) << "<cross section>" << " * " << setw(12) << "<luminosity>"
-         << " * " << setw(14) << "<scale factor>" << " * " << setw(17) << "<branching ratio>" << " / " << setw(15) << "<events in PAT>" << " = " << setw(13) << "<final value>" << endl; 
-    for (unsigned p = 0; p< procs.size(); p++) {
-        cout<<"Process "<<setw(maxNameLength)<<procs[p]->name<<" will be scaled by "<<setw(15)<<procs[p]->sigma[UserFunctions::leptonCat]<<" * "
-            <<setw(12)<<procs[p]->intLum[UserFunctions::leptonCat]<<" * "<<setw(14)<<procs[p]->scaleFactor[UserFunctions::leptonCat]
-            <<" * "<<setw(17)<<procs[p]->branching_ratio[UserFunctions::leptonCat]<<" / "<<setw(15)<<procs[p]->initial_events[UserFunctions::leptonCat]
-            <<" = "<<setw(13)<<procs[p]->getScaleFactor(UserFunctions::leptonCat)<<endl;
-    }
-
-    // Print the plot table
-    // I like doing this here for the aesthetics of the printouts
-    plotTable.printTable(cout);
-
-    // Make the cut flow table
-    // Table(name,rows,columns,cellType)
+    // Set up the cut flow table before modifying the processes
+    // That way every table will have all of the same columns regardless of whether or not that process was run
+    // Makes merging the tables much easier
     Table cutFlow = getInitializedCutTable(procs);
 
-    // Fill all the plots 
-    doPlotter(plots, procs, cutFlow, maxEvts);
+    // Set up the batching by process (for now)
+    if(batchNumber>=0) {
+        if(batchNumber==0)
+            procs.erase(procs.begin()+1,procs.end());
+        else {
+            procs.erase(procs.begin()+batchNumber+1,procs.end());
+            procs.erase(procs.begin(),procs.begin()+batchNumber);
+        }
 
-    // Print the cut flot table
-    cutFlow.printTable(cout);
+        if(procs.size()!=1) {
+            cout << "ERROR::plotter_x tried removing processes for batch mode, but ended up with more than one process" << endl;
+            return -3;
+        }
+        else {
+            cout << "INFO::plotter_x running in batch mode. Removeing all processes except " << procs.at(0)->name << endl;
+        }
+
+        outputFilename.insert(outputFilename.find(".root"),UserFunctions::concatString("_",batchNumber));
+    }
+
+
+    // Report Scale Factors
+    // unsigned int maxNameLength = 0;
+    // for(auto p : procs) {
+    //     if(p->name.size()>maxNameLength)
+    //        maxNameLength = p->name.size(); 
+    // }
+
+    // The vector containing all plots to be made
+    PlotFiller::MapOfPlots plots = getPlots(UserFunctions::leptonCat,normToData,luminosity);
+
+    // Make a table of the plots to be run
+    Table plotTable = makePlotTable(plots);
+
+    // Print the plot table    
+    plotTable.printTable(cout);
+
+    // Only do this if filling/selecting will occur
+    // If reading in histograms from file and then formatting we don't need to fill the plots from the trees
+    TFile *ifile = nullptr, *ifile_data = nullptr;
+    TDirectoryFile *data_dir = nullptr;
+    if(inputFilename.empty()) {
+        // Fill all the plots 
+        doPlotter(plots, procs, cutFlow, maxEvts);
+
+        // Print the cut flot table
+        cutFlow.printTable(cout);
+    }
+    else {
+        // Open the input file
+        ifile = TFile::Open(inputFilename.c_str(),"READ");
+        TDirectoryFile* idir = (TDirectoryFile*)ifile->GetDirectory(inputDirectoryName.c_str());
+
+        // Open the input file for data if necessary
+        if(!alternateDataFile.empty()) {
+            ifile_data = TFile::Open(alternateDataFile.c_str(),"READ");
+            data_dir = (TDirectoryFile*)ifile_data->GetDirectory("");
+        }
+
+        for (PlotFiller::MapOfPlots::iterator p = plots.begin() ; p != plots.end() ; p++) {
+            for (map<string,  Plot * >::iterator p2 = p->second.begin(); p2 != p->second.end(); p2++) {
+                bool uniformBinWidth = true;
+                double binWidth = p2->second->templateHisto->GetXaxis()->GetBinWidth(1);
+                for(int ibin=1; ibin<=p2->second->templateHisto->GetXaxis()->GetNbins(); ibin++) {
+                    if(binWidth!=p2->second->templateHisto->GetXaxis()->GetBinWidth(ibin))
+                        uniformBinWidth = false;
+                }
+
+                double original_bin_width = p2->second->templateHisto->GetXaxis()->GetBinWidth(1);
+                if(isCombinedFile)
+                    p2->second->loadHistogramsFromCombinedFile(idir, UserFunctions::leptonCat);
+                else
+                    p2->second->loadHistogramsFromFile(idir, procs, UserFunctions::leptonCat, isCombinedFile ? true : false, data_dir);
+                p2->second->setScaled(true);
+                double bin_width_ratio = p2->second->templateHisto->GetXaxis()->GetBinWidth(1)/original_bin_width;
+
+                if(uniformBinWidth) {
+                    dynamic_cast<FormattedPlot*>(p2->second)->range.first *= bin_width_ratio;
+                    dynamic_cast<FormattedPlot*>(p2->second)->range.second *= bin_width_ratio;
+                }
+                else {
+                    //dynamic_cast<FormattedPlot*>(p2->second)->range.first = p2->second->templateHisto->GetXaxis()->GetXmin();
+                    //dynamic_cast<FormattedPlot*>(p2->second)->range.second = p2->second->templateHisto->GetXaxis()->GetXmax();
+                }
+
+                if(debug) {
+                    p2->second->printList();
+                }
+            }
+        }
+
+        // Try to get the cut flow table
+        cutFlow = *((Table*)ifile->Get("cutFlow"));
+    }
 
     // Write output to file. The processs are passed to obtain the canvases
     if(outputDirectory.compare(outputDirectory.size()-1,1,"/")!=0) outputDirectory+="/";
     if(!gSystem->OpenDirectory(outputDirectory.c_str())) gSystem->mkdir(outputDirectory.c_str());
 
-    //Make a copy of every plot so far and set the y-axis to a logarithmic scale
-    vector<string> plots_to_logify = {"HT","MHT","MET","NJets","NBTags","NJets_HEMRegion"};
-    MapOfPlots plots_to_append;
-    string newTitle;
-    string newName;
-    FormattedPlot* aa;
-    for(auto iplot=plots[UserFunctions::leptonCat].begin(); iplot!=plots[UserFunctions::leptonCat].end(); iplot++) {
-        if(DefaultValues::vfind(plots_to_logify,iplot->first)!=-1) {
-            newTitle = iplot->first + "_logy";
-            newName = newTitle + "_" + DEFS::getLeptonCatString(UserFunctions::leptonCat);
-            aa = new FormattedPlot(*dynamic_cast<FormattedPlot*>(iplot->second));
-            aa->templateHisto->SetNameTitle(newName.c_str(),newTitle.c_str());
-            aa->logxy = make_pair(false,true);
-            plots_to_append[UserFunctions::leptonCat][newTitle] = aa;
-        }
-    }
-    plots[UserFunctions::leptonCat].insert(plots_to_append[UserFunctions::leptonCat].begin(), plots_to_append[UserFunctions::leptonCat].end());
+    // Make/open the output file
+    TFile ofile((outputDirectory+outputFilename).c_str(),"RECREATE");
+    ofile.mkdir("canvases");
+    ofile.mkdir("histograms");
 
-    vector<TCanvas*> canvases = getCanvases(plots, procs);
-    writePlotsToFile(outputDirectory, outputFilename, plots, canvases, cutFlow);
+    if(batchNumber<0) {
+        // Make a copy of a subset of plots and set the y-axis to a logarithmic scale (if not in batch mode)
+        vector<string> plots_to_logify = {"HT","MHT","MET","NJets","NBTags","NJets_HEMRegion"};
+        logify(plots,plots_to_logify,make_pair(false,true));
+
+        // Get the formatted canvases (if not in batch mode)
+        vector<TCanvas*> canvases = getCanvases(plots, procs);
+
+        // Write the formatted canvases to the output ROOT file (if not in batch mode)
+        writeCanvasesToFiles(ofile, outputDirectory, canvases, suffix, formats);
+    }
+
+    // Write the histograms to the output ROOT file
+    writeHistogramsToFile(ofile, plots);
+
+    // Close the output file
+    ofile.cd();
+    cutFlow.Write();
+    ofile.Close();
+    if(!inputFilename.empty()) ifile->Close();
+    if(!alternateDataFile.empty()) ifile_data->Close();
 
     if(UserFunctions::doBenchmarks) {
         cout << endl << "plotter_x::once_benchmark" << endl;
@@ -517,7 +587,7 @@ int main(int argc,char**argv) {
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void doPlotter(MapOfPlots& plots, vector<PhysicsProcess*> procs, Table& cutFlow, int maxEvents) {
+void doPlotter(PlotFiller::MapOfPlots& plots, vector<PhysicsProcess*> procs, Table& cutFlow, int maxEvents) {
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("doPlotterSetup");
 
@@ -537,12 +607,12 @@ void doPlotter(MapOfPlots& plots, vector<PhysicsProcess*> procs, Table& cutFlow,
 } //doPlotter
 
 //______________________________________________________________________________
-vector<TCanvas*> getCanvases(MapOfPlots & plots, vector<PhysicsProcess*> procs) {
+vector<TCanvas*> getCanvases(PlotFiller::MapOfPlots & plots, vector<PhysicsProcess*> procs) {
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("getCanvases");
 
     vector<TCanvas*> canvases;
-    for ( MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
+    for ( PlotFiller::MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
         for ( map<string,  Plot * >::iterator p2 = p->second.begin(); p2 != p->second.end() ; p2++) {
             vector<TCanvas*> to_merge;
             if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis)
@@ -560,52 +630,50 @@ vector<TCanvas*> getCanvases(MapOfPlots & plots, vector<PhysicsProcess*> procs) 
 } //getCanvases
 
 //______________________________________________________________________________
-void writePlotsToFile(string outputDirectory, string outputFilename, 
-                      MapOfPlots & plots, vector<TCanvas*> canvases,
-                      Table &cutFlow){
+void writeCanvasesToFiles(TFile &ofile, string outputDirectory, vector<TCanvas*> canvases, string suffix, vector<string> formats) {
     if(UserFunctions::doBenchmarks)
-        UserFunctions::once_benchmark->Start("writePlotsToFile");
+        UserFunctions::once_benchmark->Start("writeCanvasesToFile");
 
-    // Open the output file
-    TFile ofile((outputDirectory+outputFilename).c_str(),"RECREATE");
-    ofile.mkdir("canvases");
-    ofile.mkdir("histograms");
-
-    // Get the canvas and write them to file and as <formats>
-    cout << "Writing canvas(es) to rootfile " << outputDirectory << outputFilename << endl;
+    // Get the canvas and write them to a TFile file and as <formats>
+    cout << "Writing canvas(es) to ROOT file " << ofile.GetName() << endl;
     ofile.cd("canvases");
     for(auto can : canvases) {
         string canName = outputDirectory+"/"+can->GetName();
         canName += "_"+DEFS::getLeptonCatString(UserFunctions::leptonCat);
         cout << "\tSaving canvas " << canName << " ... ";
         can->Write();
-        for (auto format : UserFunctions::formats)
+        for (auto format : formats)
             can->SaveAs((canName+format).c_str());
         cout << "DONE" << endl << flush;
     }
 
+    if(UserFunctions::doBenchmarks)
+        UserFunctions::once_benchmark->Stop("writeCanvasesToFile");
+}//writeCanvasesToFile
+
+//______________________________________________________________________________
+void writeHistogramsToFile(TFile &ofile, PlotFiller::MapOfPlots & plots) {
+    if(UserFunctions::doBenchmarks)
+        UserFunctions::once_benchmark->Start("writeHistogramsToFile");
+
     // Get the Histos and write them to file
-    cout << "Writing histo(s) to rootfile " << outputDirectory << outputFilename << endl;
-    for(MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
+    cout << "Writing histogram(s) to ROOT file " << ofile.GetName() << endl;
+    for(PlotFiller::MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
         for(map<string,  Plot * >::iterator p2 = p->second.begin(); p2 != p->second.end() ; p2++) {
             ((FormattedPlot*) p2->second)->saveHistogramsToFile(ofile,"histograms");
         } //for histos inside plot
     } //for plots
 
-    ofile.cd();
-    cutFlow.Write();
-    ofile.Close();
-
     if(UserFunctions::doBenchmarks)
-        UserFunctions::once_benchmark->Stop("writePlotsToFile");
-} //writePlotsToFile
+        UserFunctions::once_benchmark->Stop("writeHistogramsToFile");
+} //writeHistogramsToFile
 
 //______________________________________________________________________________
-MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData){
+PlotFiller::MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData, float luminosity){
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("getPlotsForLeptonCat");
 
-    MapOfPlots plots;
+    PlotFiller::MapOfPlots plots;
 
     FormattedPlot* a = new FormattedPlot;
 
@@ -796,6 +864,7 @@ MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData){
         dynamic_cast<FormattedPlot*>(iplot->second)->controlRegion = UserFunctions::controlRegion;
         dynamic_cast<FormattedPlot*>(iplot->second)->overlaySignalName = signalName;
         dynamic_cast<FormattedPlot*>(iplot->second)->overlaySignalFactor = signalFactor;
+        dynamic_cast<FormattedPlot*>(iplot->second)->luminosity = luminosity;
     }
 
     if(UserFunctions::doBenchmarks)
@@ -807,15 +876,15 @@ MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData){
 
 
 //______________________________________________________________________________
-MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData){
+PlotFiller::MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData, float luminosity){
     if(UserFunctions::doBenchmarks)
         UserFunctions::once_benchmark->Start("getPlots");
 
     //All plots
-    MapOfPlots plots;
+    PlotFiller::MapOfPlots plots;
 
     //Add plots based on category
-    MapOfPlots plots_cat = getPlotsForCat(leptonCat, normToData);
+    PlotFiller::MapOfPlots plots_cat = getPlotsForCat(leptonCat, normToData, luminosity);
     plots.insert(plots_cat.begin(),plots_cat.end());
 
     if(UserFunctions::doBenchmarks)
@@ -825,13 +894,32 @@ MapOfPlots getPlots(DEFS::LeptonCat leptonCat, bool normToData){
 }
 
 //______________________________________________________________________________
-Table makePlotTable(MapOfPlots& plots) {
+void logify(PlotFiller::MapOfPlots &plots, std::vector<std::string> plots_to_logify, pair<bool,bool> logxy) {
+    PlotFiller::MapOfPlots plots_to_append;
+    string newTitle;
+    string newName;
+    FormattedPlot* aa;
+    for(auto iplot=plots[UserFunctions::leptonCat].begin(); iplot!=plots[UserFunctions::leptonCat].end(); iplot++) {
+        if(utilities::vfind(plots_to_logify,iplot->first)!=-1) {
+            newTitle = iplot->first + ((logxy.first)?"_logx":"") + ((logxy.second)?"_logy":"");
+            newName = newTitle + "_" + DEFS::getLeptonCatString(UserFunctions::leptonCat);
+            aa = new FormattedPlot(*dynamic_cast<FormattedPlot*>(iplot->second));
+            aa->templateHisto->SetNameTitle(newName.c_str(),newTitle.c_str());
+            aa->logxy = logxy;
+            plots_to_append[UserFunctions::leptonCat][newTitle] = aa;
+        }
+    }
+    plots[UserFunctions::leptonCat].insert(plots_to_append[UserFunctions::leptonCat].begin(), plots_to_append[UserFunctions::leptonCat].end());
+}
+
+//______________________________________________________________________________
+Table makePlotTable(PlotFiller::MapOfPlots& plots) {
     Table table("List of Plots");
     TableRow* tableRow;
     TableCellText* tableCellText;
     stringstream out;
 
-    for ( MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
+    for ( PlotFiller::MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
         int counter = 0;
         for ( map<string,  Plot * >::iterator p2 = p->second.begin(); p2 != p->second.end() ; p2++, counter++){
             out << counter;
@@ -858,7 +946,7 @@ Table getInitializedCutTable(const vector<PhysicsProcess*> &procs) {
     for(auto p : procs) {
         pnames.push_back(p->name);
     }
-    return Table("cutFlow",cuts,pnames,"TableCellVal");
+    return Table("cutFlow",cuts,pnames,"TableCellInt");
 }
 
 //______________________________________________________________________________

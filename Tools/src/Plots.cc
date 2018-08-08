@@ -90,11 +90,10 @@ void Plot::scaleToData(vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat)
     double totalData = 0;
     double totalMC = 0;
     for (unsigned int p = 0 ; p < procs.size() ; p++) {
-        histos[p]->Scale(procs[p]->getScaleFactor(lepCat));
+        histos[p]->Scale(luminosity);
 
         string hName = histos[p]->GetTitle();
-        hName.ToUpper();
-        if ( DefaultValues::ci_find_substr(hName,string("data"))!=-1 )
+        if ( utilities::ci_find_substr(hName,string("data"))!=-1 )
             totalData += histos[p]->Integral();
         else 
             totalMC += histos[p]->Integral();
@@ -110,7 +109,7 @@ void Plot::scaleToData(vector<PhysicsProcess*> procs, DEFS::LeptonCat lepCat)
       
         for (unsigned int p = 0 ; p < procs.size() ; p++) {
             string hName = histos[p]->GetTitle();
-            if ( DefaultValues::ci_find_substr(hName,string("data"))==-1 )
+            if ( utilities::ci_find_substr(hName,string("data"))==-1 )
                 histos[p]->Scale(totalData/totalMC);
         }
     }
@@ -152,7 +151,7 @@ void Plot::loadHistogramsFromFile(TDirectoryFile* dir, std::vector<PhysicsProces
       name = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.c_str(),
                         DEFS::getLeptonCatString(lepCat).c_str());
 
-    if(DefaultValues::ci_find_substr(procs[i]->name,string("data"))!=-1 && data_dir!=0) {
+    if(utilities::ci_find_substr(procs[i]->name,string("data"))!=-1 && data_dir!=0) {
       TString nameAlt = Form("%s_%s_%s",templateHisto->GetTitle(),procs[i]->name.c_str(),
                         DEFS::getLeptonCatString(lepCat).c_str());
       TH1* data_hist(0); 
@@ -353,7 +352,7 @@ vector<TCanvas*> FormattedPlot::getCanvas1DTDR(std::vector<PhysicsProcess*> proc
     frame_down->GetXaxis()->SetTitle(axisTitles[0].c_str());
     frame_down->GetYaxis()->SetTitle("HEM/Nominal");
 
-    TCanvas * can = st->tdrDiCanvas(templateHisto->GetTitle(),frame_up,frame_down,4,11,procs[0]->intLum[leptonCat]/1000.);
+    TCanvas * can = st->tdrDiCanvas(templateHisto->GetTitle(),frame_up,frame_down,4,11,luminosity/1000.);
     can->cd(1);
     TPad* padMain = (TPad*)can->GetPad(1);
     padMain->SetLogx(logxy.first);
@@ -422,7 +421,7 @@ vector<TCanvas*> FormattedPlot::getCanvas2DRatioTDR(std::vector<PhysicsProcess*>
 
     vector<TCanvas*> ret;
     for(unsigned int ih=0; ih<groupedHistos.size(); ih+=2) {
-        ret.push_back(st->tdrCanvas(Form("%s_%i",templateHisto->GetTitle(),ih),frame_up,4,0,false,procs[0]->intLum[leptonCat]/1000.,"colz"));
+        ret.push_back(st->tdrCanvas(Form("%s_%i",templateHisto->GetTitle(),ih/2),frame_up,4,0,false,luminosity/1000.,"colz"));
         ret.back()->cd(1);
         TPad* padMain = (TPad*)ret.back()->GetPad(0);
         padMain->SetLogx(logxy.first);
@@ -640,7 +639,7 @@ vector<TCanvas*> FormattedPlot::getStackedCanvas(vector<PhysicsProcess*> procs) 
 
    // Add the luminosity
    //drawLumi(3.6);
-   drawLumi(procs[0]->intLum[leptonCat]/1000);
+   drawLumi(luminosity/1000);
 
    // canRatio: this is the pad with the Data/MC on it
    TVirtualPad * canRatio = can->GetPad(2);
@@ -895,7 +894,7 @@ vector<TCanvas*> FormattedPlot::getStackedCanvasTDR(vector<PhysicsProcess*> proc
   if (signal != 0) {
     signal->GetXaxis()->SetRangeUser(range.first, range.second);
   }
-  TCanvas * can = st->tdrDiCanvas(templateHisto->GetTitle(),frame_up,frame_down,2,11,procs[0]->intLum[leptonCat]/1000);
+  TCanvas * can = st->tdrDiCanvas(templateHisto->GetTitle(),frame_up,frame_down,2,11,luminosity/1000);
   can->cd(1);
 
   TPad* padMain = (TPad*)can->GetPad(0);
@@ -1074,7 +1073,7 @@ void FormattedPlot::formatColorsStack(vector<PhysicsProcess*> procs)
       histos[i]->SetLineColor(kBlack);
       histos[i]->SetMarkerColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
       histos[i]->SetFillColor(((PlotterPhysicsProcess*)procs[proc_index])->color);
-      if(DefaultValues::ci_find_substr(procs[i]->name,string("data"))!=-1) {
+      if(utilities::ci_find_substr(procs[i]->name,string("data"))!=-1) {
          histos[i]->SetMarkerStyle(20);
          histos[i]->SetMarkerSize(0.7);
       }
