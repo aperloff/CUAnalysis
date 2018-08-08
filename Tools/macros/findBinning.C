@@ -32,6 +32,7 @@
 
 //TAMUWW Includes
 #include "TAMUWW/SpecialTools/interface/DefaultValues.hh"
+#include "TAMUWW/SpecialTools/interface/VectorUtilities.hh"
 
 using namespace std;
 
@@ -136,11 +137,11 @@ void findBinning(TString filename, TString idir = "", TString jetBin = "",
 			if(verbose) cout << "DONE" << endl;
 		}
 
-		if(DefaultValues::vfind(sNames,name)>=0) {
+		if(VectorUtilities::vfind(sNames,name)>=0) {
 			cout << "Adding " << name << " to the signal sum." << endl;
 			signalSum->Add(h);
 		}
-		else if(DefaultValues::vfind(bNames,name)>=0) {
+		else if(VectorUtilities::vfind(bNames,name)>=0) {
 			cout << "Adding " << name << " to the background sum." << endl;
 			backgroundSum->Add(h);
 
