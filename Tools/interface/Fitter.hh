@@ -42,6 +42,7 @@
 // TAMU Libraries
 #include "CUAnalysis/Tools/interface/Plots.hh"
 #include "CUAnalysis/SpecialTools/interface/DefaultValues.hh"
+#include "CUAnalysis/SpecialTools/interface/VectorUtilities.hh"
 #include "CUAnalysis/SpecialTools/interface/FigureOfMerit.hh"
 
 //##################################################
@@ -83,8 +84,6 @@ private:
    THStack* dataStack;
    TList* mcList;
    TList* dataList;
-
-   DefaultValues DV;
 
    ROOT::Minuit2::Minuit2Minimizer*  minFit; 
    ROOT::Math::IMultiGenFunction * funcFit;
@@ -145,8 +144,8 @@ private:
    void initializeHistNames();
    //Returns the numbers that we scale by to fit data
    //double[0] is the scale factor for process1, double[1] is for process2
-   vector<double> fitMinimization();
-   vector<double> fitTFractionFitter();
+   std::vector<double> fitMinimization();
+   std::vector<double> fitTFractionFitter();
    //Colors each monteCarlo Process
    void colorMonteCarlo();
    //This fills resultStack

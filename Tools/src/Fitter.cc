@@ -35,8 +35,8 @@ minFit(0), funcFit(0)
 
    fProcessNames = fproc;
    for(unsigned int nproc=0; nproc<fProcessNames.size(); nproc++) {
-      fProcessXsec.push_back(DV.getCrossSectionAndError(fProcessNames[nproc]).first);
-      fProcessXsecError.push_back(DV.getCrossSectionAndError(fProcessNames[nproc]).second);
+      fProcessXsec.push_back(DefaultValues::getCrossSectionAndError(fProcessNames[nproc]).first);
+      fProcessXsecError.push_back(DefaultValues::getCrossSectionAndError(fProcessNames[nproc]).second);
    }
 }
 
@@ -235,7 +235,7 @@ void Fitter::addSigBkgHistograms(vector<string> sig) {
    backgroundHistogram->Sumw2();
 
    for(map<string,TH1D*>::iterator it=monteCarloHistograms.begin(); it!=monteCarloHistograms.end(); it++) {
-      if (DV.vfind(sig,(*it).first)!=-1) {
+      if (utilities::vfind(sig,(*it).first)!=-1) {
          signalHistogram->Add((*it).second);
          cout << "Fitter::Added the " << (*it).first << " histogram to the signalHistogram." << endl;
          cout << "\t" << setw(26) << (*it).first << " Entries: " << (*it).second->GetEntries() << endl;
@@ -396,11 +396,11 @@ vector<double> Fitter::fitMinimization()
    
    int iproc = 0;
    for(map<string, TH1D*>::iterator it = monteCarloHistograms.begin(); it != monteCarloHistograms.end(); it++) {
-      if(DefaultValues::vfind(fProcessNames,it->first)>-1 && (it->first=="QCD_ElFULL" || it->first=="QCD_MuFULL")) {
+      if(utilities::vfind(fProcessNames,it->first)>-1 && (it->first=="QCD_ElFULL" || it->first=="QCD_MuFULL")) {
          minFit->SetLowerLimitedVariable(iproc, it->first.c_str(), 0.364, 0.000001, 0.0);
          iproc++;
       }
-      else if(DefaultValues::vfind(fProcessNames,it->first)>-1){
+      else if(utilities::vfind(fProcessNames,it->first)>-1){
          minFit->SetLowerLimitedVariable(iproc, it->first.c_str(), 1.0, 0.000001, 0.0);
          iproc++;
       }
@@ -701,7 +701,7 @@ double Fitter::fitKSFunc(const double *par) {
    mc->Reset();
    int iproc = 0;
    for(map<string, TH1D*>::iterator it = monteCarloHistograms.begin(); it != monteCarloHistograms.end(); it++) {
-      if(DefaultValues::vfind(fProcessNames,it->first)>-1) {
+      if(utilities::vfind(fProcessNames,it->first)>-1) {
          //cout << it->first << "\tint_before=";
          TH1D* tmp = (TH1D*)it->second->Clone((it->first+"_clone").c_str());
          //cout << tmp->Integral() << "\tscale_factor=" << par[iproc] << "\tint_after=";
