@@ -150,6 +150,8 @@ void UserFunctions::fillPlots(PlotFiller::MapOfPlots &  plots, TString processNa
                 nJetCounter++;
         }
         plots[leptonCat]["NJets_HEMRegion"]->Fill(nJetCounter,weight);
+        if(nJetCounter>=1)
+            plots[leptonCat]["MET_HEMRegion"]->Fill(ntuple->MET,weight);
     }
 
     if(UserFunctions::doBenchmarks) {
@@ -759,6 +761,13 @@ PlotFiller::MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData
         a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
                               {"N_{jets}","Number of Events"},
                               make_pair(0.,20.));   
+        plots[leptonCat][string(title)] = a;
+
+        title = "MET_HEMRegion";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                              {"E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,1000.));   
         plots[leptonCat][string(title)] = a;
     }
 
