@@ -38,13 +38,8 @@ namespace DefaultValues {
    // basically returns $CMSSW_BASE+"/src/CUAnalysis/Config/Official/"
    std::string getConfigPath();
   
-   std::string getBDTLocation(DEFS::JetBin jetBin, DEFS::TagCat tagcat, DEFS::University univ, bool filenameOnly = false);
-
    std::string getWeightForCategory(DEFS::TagCat tagcat,  
                                            DEFS::PhysicsProcessType, int );
-
-   // Return a table with normalization of process for the given tag category
-   Table getNormTable(DEFS::LeptonCat evtcat, DEFS::TagCat tagcat);
 
    // Return a table with location of files for the given tag category
    Table getFileLocationTable(DEFS::TagCat tagcat);
@@ -90,38 +85,6 @@ namespace DefaultValues {
 
    // Returns the luminosity for a given dataset
    double getLuminosity(TString channelName);
-   
-   // Returns the cross section for the given process
-   std::pair<double,double> getCrossSectionAndError(TString channelName);
-   
-   // Returns the branching ratio for the given process
-   double getBranchingRatio(TString channelName);
-   
-   // Returns the number of Monte Carlo events for the given process
-   double getNumMCEvts(TString channelName);
-
-   // Returns the scale factor for the given process
-   double getScaleFactor(TString channelName);
-   double getScaleFactor(TString channelName, DEFS::LeptonCat leptonCat);
-
-   // Returns the maximum tEventProb for a given ME found in that MEs matching 
-   // MC sample (i.e. the WW ME in the WW MC sample).
-   //This is not a unique identifier. It will mix up STopT and STopS in STopT_T/STopT_Tbar and STopS_T/STopS_Tbar respectively.
-   //Takes the highest value.
-   std::pair<double,double> getMaxEventProbAndError(int probStatIndex, Table* inputTable = 0);
-   //Not unique. Will mix up WLg and WLgSub. Takes the highest value.
-   std::pair<double,double> getMaxEventProbAndError(DEFS::PhysicsProcessType ppType, std::string meType, Table* inputTable = 0);
-   //Alias for the previous member function so it can be used in CINT
-   std::pair<double,double> getMaxEventProbAndError(std::string ppType, std::string meType, Table* inputTable = 0);
-   //Not unique. Will mix up WLg/WLgSub from WJets, STopT from STopT_T and STopT_Tbar, and STopS from STopS_T and STopS_Tbar.
-   //Takes the highest value.
-   std::pair<double,double> getMaxEventProbAndError(std::string meType, Table* inputTable = 0);
-
-   // Returns the median BDT value for a given jet bin and lepton category
-   std::pair<double,double> getMedianPurity(DEFS::JetBin jetBin, DEFS::LeptonCat leptonCat, std::string BDTType, Table* inputTable = 0);
-
-   // Sets two vectors with the variables and spectators for a given MVA training
-   void getMVAVar(TString filename, std::vector<TString>& MVAV, std::vector<TString>& MVAS);
 
    // Destroy all open canvases
    void DestroyCanvases();
