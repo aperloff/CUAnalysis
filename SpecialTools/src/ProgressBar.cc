@@ -1,19 +1,21 @@
 #include "CUAnalysis/SpecialTools/interface/ProgressBar.hh"
 
 //-----------------------------------------------------------------------------
-void ProgressBar::loadbar(unsigned int x, unsigned int n, unsigned int w, string prefix, pair<float,float> time) {
+void ProgressBar::loadbar(unsigned int x, unsigned int n, unsigned int w, std::string prefix, std::pair<float,float> time) {
     if ( (x != n) && (x % (n/100) != 0) ) return;
  
     float ratio  =  x/(float)n;
     int   c      =  ratio * w;
 
-    cout << prefix << " [";
-    for (int x=0; x<c; x++) cout << "=";
-    for (unsigned int x=c; x<w; x++) cout << " ";
+    std::cout << prefix << " [";
+    for (int x=0; x<c; x++) std::cout << "=";
+    for (unsigned int x=c; x<w; x++) std::cout << " ";
     if(time.first == 0.0 && time.second == 0.0)
-        cout << "] " << setw(3) << (int)(ratio*100) << "% (" << x << "/" << n << ")\r" << flush;
+        std::cout << "] " << std::setw(3) << (int)(ratio*100) << "% (" << x << "/" << n << ")\r" << std::flush;
     else
-        cout << "] " << setw(3) << (int)(ratio*100) << "% (" << x << "/" << n << ") (CPU: " << time.first << "s / Real: " << time.second << "s)\r" << flush;
+        std::cout << "] " << std::setw(3) << (int)(ratio*100) << "% (" << x << "/" << n << ")\n"
+                  << "  (CPU: " << time.first << "s | Real: " << time.second << "s) (CPU: "
+                  << n/time.first << "<evts>/s | Real: " << n/time.second << "<evts>/s)\r" << std::flush;
 }//loadbar
 
 //-----------------------------------------------------------------------------

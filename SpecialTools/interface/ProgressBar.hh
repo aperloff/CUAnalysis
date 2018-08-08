@@ -13,18 +13,12 @@
 #include <string>
 #include <utility>
 
-using std::cout;
-using std::setw;
-using std::flush;
-using std::string;
-using std::pair;
-using std::make_pair;
-
 class ProgressBar {
 public:
 
   	// C Versions
-  	static void loadbar(unsigned int x, unsigned int n, unsigned int w = 50, string prefix = "", pair<float,float> time = make_pair(0.0,0.0));
+  	static void loadbar(unsigned int x, unsigned int n, unsigned int w = 50, std::string prefix = "",
+  	                    std::pair<float,float> time = std::make_pair(0.0,0.0));
   	// C++ Version
   	static void loadBar(int x, int n, int r, int w);
 
