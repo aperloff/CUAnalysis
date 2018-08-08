@@ -108,7 +108,7 @@ void Table::printTable(ostream &out, string style){
   // For neatness find first the max width needed in each column 
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  // Check is the table is empty
+  // Check is the table is not empty
   if (tableRows.size()==0)
      return;
 
@@ -116,12 +116,13 @@ void Table::printTable(ostream &out, string style){
   TableFormat format  = TableFormat::getFormat(style,tableRows[0].getCellEntries().size()+1);
 
   // Create and find the max size of each column
+  // 
   vector<size_t> colWidth;
 
   // start by including the table name in the first column
   colWidth.push_back(string(GetName()).length());
 
-  // loop over rows. colWidth[0] must exist
+  // loop over rows. colWidth[0] must exist and represents the legnth of the table name
   for (tableRows_it it=tableRows.begin();it!=tableRows.end(); it++){
 
     size_t lenR = string(it->GetName()).length();
@@ -129,7 +130,7 @@ void Table::printTable(ostream &out, string style){
       colWidth[0] =  lenR;
     
     // get the cells and loop over them
-    vector<TableCell*> cells = it-> getCellEntries();
+    vector<TableCell*> cells = it->getCellEntries();
     for (unsigned int col = 0 ;col < cells.size();col++){
 
       // find len as the max of the cell name and it's content
@@ -138,13 +139,11 @@ void Table::printTable(ostream &out, string style){
       size_t len = len1 > len2 ? len1: len2;
 
       if ((col+1) < colWidth.size()){
-	if (len > colWidth[col+1] )
-	  colWidth[col+1] =  len;
+        if (len > colWidth[col+1] )
+         colWidth[col+1] =  len;
       }else
-	colWidth.push_back(len);
-	
+        colWidth.push_back(len);
     }//for cells in column
-
   }//for rows
 
   // Now that we know the actual width of each column just print the table
@@ -172,10 +171,9 @@ void Table::printTable(ostream &out, string style){
     // Print the cell's names  
     for (unsigned int col = 0; col < cells.size(); col++){
       if (col < cells.size()-1 )
-	oss << std::setw(colWidth[col+1]+lpad) << cells[col]->GetName() << " " <<format.separator.c_str() ;
-      else{
-	oss << std::setw(colWidth[col+1]+lpad)<< cells[col]->GetName();
-      }
+       oss << std::setw(colWidth[col+1]+lpad) << cells[col]->GetName() << " " <<format.separator.c_str() ;
+      else
+       oss << std::setw(colWidth[col+1]+lpad)<< cells[col]->GetName();
     }// for cells
     oss<<format.end_row+format.Row1HeaderPos<<endl;   
     oss << format.line;
@@ -189,15 +187,13 @@ void Table::printTable(ostream &out, string style){
       
       // Print the info in each cell followed by the separator when needed
       for (unsigned int col = 0; col < cells.size(); col++ ){
-	if (col < cells.size()-1 )
-	  oss << std::setw(colWidth[col+1]+lpad) << cells[col]->print(format) << " " << format.separator;
-	else
-	  oss << std::setw(colWidth[col+1]+lpad) << cells[col]->print(format);
+       if (col < cells.size()-1 )
+         oss << std::setw(colWidth[col+1]+lpad) << cells[col]->print(format) << " " << format.separator;
+       else
+         oss << std::setw(colWidth[col+1]+lpad) << cells[col]->print(format);
       }
-
       oss<<format.end_row<<endl;
     }// for rows
-
   } 
 
   oss << format.line;
@@ -753,6 +749,91 @@ TableCell* Table::createNewCell(string cellClass, string cellName){
   return 0;
 
 }//createNewCell
+
+//----------------------------------------------------------------------------
+int Table::removeRow(std::string rowName) {
+  // first find the row index that corresponds to this row name
+  int index = -1;
+  for(unsigned int irow=0; irow<tableRows.size(); irow++) {
+    if (rowName.compare(tableRows[irow].GetName()) == 0){
+      index = irow;
+      break;
+    }
+  }
+  if(index==-1) {
+    cout << "ERROR Table::removeRow could not find the index for the row \"" << rowName << "\"" << endl;
+  }
+  return removeRow(index);
+}
+
+int Table::removeRow(int rowIndex) {
+  // erase the rowIndexth element
+  tableRows.erase(tableRows.begin()+rowIndex);
+  return tableRows.size();
+}
+
+//----------------------------------------------------------------------------
+// get the index in the tableRows vector for the row with the given name
+int Table::getRowIndex(std::string rowName) const {
+  int index = -1;
+
+  // find the row index that corresponds to the first and last row names
+  for(unsigned int irow=0; irow<tableRows.size(); irow++) {
+    if (rowName.compare(tableRows[irow].GetName()) == 0){
+      index = irow;
+      break;
+    }
+  }
+  if(index == -1) {
+    cout << "ERROR Table::getRowIndex could not find the index for the row named, \"" << rowName << "\"" << endl;
+  }
+  return index;
+}
+
+//----------------------------------------------------------------------------
+// squash a set of rows together (delete N-1 rows and rename the last one). The rows must be contiguous.
+int Table::squashRows(std::string beginRowName, std::string endRowName, std::string newName){
+  int indexStart = getRowIndex(beginRowName);
+  int indexEnd = getRowIndex(endRowName);
+  if(indexStart==-1 || indexEnd==-1) {
+    cout << "ERROR Table::squashRows could not find the index for either the beginRowName, \"" << beginRowName << "\", or endRowName, \"" << endRowName << "\"" << endl;
+  }
+  return squashRows(indexStart,indexEnd,newName);
+}
+
+int Table::squashRows(int firstRowIndex, int lastRowIndex, std::string newName){
+  // change the name of the row being squashed into
+  if(!newName.empty()) {
+    tableRows[lastRowIndex].SetName(newName.c_str());
+  }
+
+  // erase all but the lastRowIndex
+  tableRows.erase(tableRows.begin()+firstRowIndex,tableRows.begin()+lastRowIndex);
+
+  return tableRows.size();
+}
+
+//----------------------------------------------------------------------------
+// sum the values in a set of rows and return a new row
+TableRow Table::sumRows(std::string beginRowName, std::string endRowName, std::string name) const {
+  int indexStart = getRowIndex(beginRowName);
+  int indexEnd = getRowIndex(endRowName);
+  if(indexStart==-1 || indexEnd==-1) {
+    cout << "ERROR Table::sumRows could not find the index for either the beginRowName, \"" << beginRowName << "\", or endRowName, \"" << endRowName << "\"" << endl;
+  }
+  return sumRows(indexStart,indexEnd,name);
+}
+
+TableRow Table::sumRows(int firstRowIndex, int lastRowIndex, std::string name) const {
+  // initialize the return value with the value of the first row to sum
+  // this is needed so that the init row has the same number of entries as the other rows
+  TableRow ret = tableRows[firstRowIndex];
+  if(!name.empty()) ret.SetName(name.c_str());
+
+  // sum the rows from the first+1 index (first is already set on initialization) to the last index
+  // need to use lastRowIndex+1 so that we actually include the last index because acummulate works as [first,last)
+  return std::accumulate (tableRows.begin()+firstRowIndex+1, tableRows.begin()+lastRowIndex+1, ret, std::plus<TableRow>());
+}
 
 //----------------------------------------------------------------------------
 // merge tables into a single table if they have the same name, column, and row titles

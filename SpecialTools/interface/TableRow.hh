@@ -9,8 +9,13 @@
 //My libraries
 #include "CUAnalysis/SpecialTools/interface/Value.hh"
 #include "CUAnalysis/SpecialTools/interface/TableCell.hh"
+#include "CUAnalysis/SpecialTools/interface/TableFormat.hh"
 
 //C++ libraries
+#include <iostream>
+#include <ostream>
+#include <sstream>
+#include <iomanip> //setw and other manipulators
 #include <string>
 #include <vector>
 
@@ -33,8 +38,12 @@ class TableRow  : public TNamed {
   void addCellEntries(TableCell* ent){ cellEntries.push_back(ent); }
   void setCellEntries(std::vector<TableCell*> ent){ cellEntries = ent; }
   std::vector<TableCell*> getCellEntries() const { return cellEntries;}
+  std::vector<size_t> getColumnWidths(TableFormat format, bool includeRowName = true) const;
+  void printRow(std::ostream &out,std::string style = "Normal");
   TableRow & operator=(const TableRow & rhs);
   TableCell* operator[](std::string col);
+  TableRow   operator+(const TableRow & rhs) const;
+  TableRow & operator+=(const TableRow & rhs);
 
  private:
 

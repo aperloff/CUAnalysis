@@ -17,6 +17,8 @@
 #include <vector>
 #include <ostream>
 #include <fstream>
+#include <functional> // std::plus
+#include <numeric>    // std::accumulate
 
 //ROOT libraries
 #include "TNamed.h"
@@ -70,10 +72,14 @@ public :
   void printTable(std::ostream &out,std::string style = "Normal");
   
   // add two tables together
-   void addTable(Table &, unsigned int omitFirstRows = 0);
+  void addTable(Table &, unsigned int omitFirstRows = 0);
 
   // add a single row
   void addRow(TableRow row) { tableRows.push_back(row);}
+
+  // remove a single row
+  int removeRow(int rowIndex);
+  int removeRow(std::string rowName);
 
   // set the vector of rows
   void setRows(std::vector<TableRow> rows) { tableRows = rows;}
@@ -100,6 +106,19 @@ public :
 
   // get the origin of the table
   std::string getTableOrigin() {return tableOrigin;}
+
+  // get the index in the tableRows vector for the row with the given name
+  int getRowIndex(std::string rowName) const;
+
+  // squash a set of rows together (delete N-1 rows and rename the last one). The rows must be contiguous.
+  int squashRows(std::string beginRowName, std::string endRowName, std::string newName = "");
+  int squashRows(int firstRowIndex, int lastRowIndex, std::string newName = "");
+
+  // sum the values in a set of rows and return a new row
+  TableRow sumRows(std::string beginRowName, std::string endRowName, std::string name = "") const;
+  TableRow sumRows(int firstRowIndex, int lastRowIndex, std::string name = "") const;
+  //TableRow sumRows(std::vector<std::string> rowNames);
+  //TableRow sumRows(std::vector<int> rowIndices);
 
   // merge tables into a single table if they have the same name, column, and row titles
   int Merge(TCollection *list);
