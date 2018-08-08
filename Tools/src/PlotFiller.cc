@@ -98,7 +98,7 @@ void PlotFiller::run() {
 
       // Check some test branch
       if (c->GetBranch("RunNum")) {
-         ntuple = new EventNtuple(c, (DefaultValues::ci_find_substr(processes[i]->name,string("data"))!=-1) ? false : true);
+         ntuple = new EventNtuple(c, (utilities::ci_find_substr(processes[i]->name,string("data"))!=-1) ? false : true);
          //c->SetBranchAddress("EvtTree",&ntuple);
       }
       else {

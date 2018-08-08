@@ -12,8 +12,6 @@
 #include "CUAnalysis/SpecialTools/interface/EventNtuple.hh"
 #include "CUAnalysis/SpecialTools/interface/Table.hh"
 #include "CUAnalysis/SpecialTools/interface/ProgressBar.hh"
-#include "CUAnalysis/Tools/interface/PUreweight.hh"
-
 
 //ROOT libraries
 #include "TBenchmark.h"
@@ -32,7 +30,7 @@ class PlotFiller{
 
 public:
 
-  typedef map<DEFS::LeptonCat, map<std::string,  Plot * > >  MapOfPlots;
+  typedef std::map<DEFS::LeptonCat, std::map<std::string,  Plot * > >  MapOfPlots;
 
    // NOTE That the user must provide the fill function at construction (because it is a required function).
    PlotFiller(MapOfPlots &plots_,

@@ -1,7 +1,7 @@
 // Name: PhysicsProcessMemory.cc
 // Author: Alexx Perloff
 
-// This class will eventually replace an older Physics class. It derives from PhysicsProcessNEW and
+// This class will eventually replace an older Physics class. It derives from PhysicsProcess and
 // adds the ability to load a TTree into memory
 
 #include "TFile.h"
@@ -53,10 +53,6 @@ PhysicsProcessMemory & PhysicsProcessMemory::operator=(const PhysicsProcess & ri
       name = right.name;
       groupName = right.groupName;
       fileName = right.fileName;
-      sigma = right.sigma;
-      branching_ratio = right.branching_ratio;
-      intLum = right.intLum;
-      initial_events = right.initial_events;
       chain = right.chain;
       m_formulaCategory = 0;
       m_formulaWeight = 0;

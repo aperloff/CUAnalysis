@@ -32,11 +32,7 @@
 
 //This package
 #include "CUAnalysis/SpecialTools/interface/Defs.hh"
-
-using namespace std;
-
-typedef map<DEFS::LeptonCat,double> PhysParMap;
-typedef map<DEFS::LeptonCat,unsigned int> PhysParMapUI;
+#include "CUAnalysis/SpecialTools/interface/StringUtilities.hh"
 
 class PhysicsProcess
 {
@@ -48,36 +44,18 @@ public:
                   std::string treeName = "PS/EvtTree",
                   bool debug = false);
 
-   double getScaleFactor(DEFS::LeptonCat lepCat) {
-     return sigma[lepCat]*intLum[lepCat]*scaleFactor[lepCat] * branching_ratio[lepCat] / initial_events[lepCat];
-   }
-   void setPhysicsParameters(PhysParMap cross_section, PhysParMap lum, PhysParMap br, PhysParMapUI in_ev, PhysParMap sf);
-
-   // The main function that checks if two given strings match. The first string may contain wildcard characters.
-   bool match(const char *first, const char * second);
-
    // Retreive the list of files in the chain and possibly print them to the screen
-   vector<string> getListOfFiles(bool print = false, string appendChar = "");
+   std::vector<std::string> getListOfFiles(bool print = false, std::string appendChar = "");
 
    // The given name of the process
-   string  name;
-   inline string getName() const {return name;}
+   std::string  name;
+   inline std::string getName() const {return name;}
    // The group with which you will merge it in canvases (Diboson, Single Top, etc)
    TString groupName;
    // The file path of the process
-   string fileName;
+   std::string fileName;
    // The pointer to the file's TChain
    TChain* chain;
-   // The production cross section
-   PhysParMap sigma;
-   // The branching ratio
-   PhysParMap branching_ratio;
-   // The integrated luminosity to which to normalize
-   PhysParMap  intLum;
-   // The initial number of events in the MC sample
-   PhysParMapUI initial_events;
-   // A scale factor which can be applied to any process for any purpose (i.e. QCD/WJets scaling)
-   PhysParMap scaleFactor;
 };
 
 class PlotterPhysicsProcess: public PhysicsProcess
