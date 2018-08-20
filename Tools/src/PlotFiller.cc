@@ -120,7 +120,8 @@ void PlotFiller::run() {
       else {
          numberOfEvents = c->GetEntries();
       }
-      *(cutFlow(DEFS::getCutLevelString((DEFS::CutLevel)0),processes[i]->name)) = Value(numberOfEvents,0.0);
+      //We are assuming the first row in the cut flow table contains the initial number of events being processed
+      (*cutFlow.at(0,processes[i]->name)) = Value(numberOfEvents,0.0);
       cout << "\tProcessing " << numberOfEvents << " events (out of " << c->GetEntries() << ")." << endl;
       
       // This runs once for each process before the events are run.

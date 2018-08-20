@@ -278,7 +278,6 @@ logxy(fp.logxy),
 leptonCat(fp.leptonCat),
 jetBin(fp.jetBin),
 tagCat(fp.tagCat),
-controlRegion(fp.controlRegion),
 overlaySignalFactor(fp.overlaySignalFactor),
 overlaySignalName(fp.overlaySignalName)
 {

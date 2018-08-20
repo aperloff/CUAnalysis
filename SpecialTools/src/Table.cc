@@ -5,10 +5,6 @@
 
 //My libraries
 #include "CUAnalysis/SpecialTools/interface/Table.hh"
-#include "CUAnalysis/SpecialTools/interface/TableCellInt.hh"
-#include "CUAnalysis/SpecialTools/interface/TableCellVal.hh"
-#include "CUAnalysis/SpecialTools/interface/TableCellText.hh"
-#include "CUAnalysis/AuxFunctions/interface/AuxFunctions.hh"
 
 //C++ libraries
 #include <string>
@@ -475,8 +471,8 @@ TableRow Table::operator[](std::string row) {
       if (string(tableRows[r].GetName()).compare(row)==0)
          return tableRows[r];
    }
-   
-   cout << "ERROR  Table::Sprecified row (" << row << ") not found" << endl
+
+   cout << "ERROR  Table::Specified row (" << row << ") not found" << endl
         << "\tReturning empty table row" << endl;
    TableRow e;
    return e;
@@ -522,30 +518,104 @@ void Table::addTable(Table & table2, unsigned int omitFirstCuts){
 //----------------------------------------------------------------------------
 // Return a pointer to the TableCell with row and column names with the given strings.
 // Returns a null pointer if it does not find it.
-TableCell * Table::getCellRowColumn(string row, string col){ 
+// Can optionally add a new row if the row isn't found
+TableCell * Table::getCellRowColumn(string row, string col, bool addMissingRow){ 
 
-  //Loop over all the rows trying to find one named row
-  for (unsigned int it = 0; it < tableRows.size(); it++){
+  //Find the pointer to the row
+  TableRow* rowptr = findRow(row,addMissingRow);
+  if(!rowptr) {
+     return nullptr;
+  }
+  else {
+     // Get the vector of cells
+     vector<TableCell*> cells = rowptr->getCellEntries();
 
-    if (row.compare(tableRows[it].GetName()) == 0){
-
-      // Get the vector of cells
-      vector<TableCell*> cells = tableRows[it].getCellEntries();
-
-      // found it, now found the cell with name col
-      for (unsigned int cc = 0; cc < cells.size(); cc++){
-	if (col.compare(cells[cc]->GetName()) == 0) {
-	  return cells[cc];
-	}
+     // Now find the cell with the name col
+     for (unsigned int cc = 0; cc < cells.size(); cc++){
+         if (col.compare(cells[cc]->GetName()) == 0) {
+            return cells[cc];
+         }
       }//for cells
+  }
+  return nullptr;
 
-    }//if row
+}//getCellRowColumn
 
-  }//for rows
-  
-  return 0;
+//----------------------------------------------------------------------------
+TableCell * Table::getCellRowColumn(std::string row, unsigned int colIndex, bool addMissingRow) {
+  //Find the pointer to the row
+  TableRow* rowptr = findRow(row,addMissingRow);
+  if(!rowptr) {
+     return nullptr;
+  }
+  else {
+     return rowptr->findCell(colIndex);
+  }
+  return nullptr;
+}
 
-}//getValueAtRowColumnStrings 
+//----------------------------------------------------------------------------
+TableCell * Table::getCellRowColumn(unsigned int rowIndex, string col){ 
+
+  //Find the pointer to the row
+  TableRow* rowptr = findRow(rowIndex,false);
+  if(!rowptr) {
+     return nullptr;
+  }
+  else {
+     return rowptr->findCell(col);
+  }
+  return nullptr;
+
+}//getCellRowColumn
+
+//----------------------------------------------------------------------------
+TableCell * Table::getCellRowColumn(unsigned int rowIndex, unsigned int colIndex){ 
+
+  //Find the pointer to the row
+  TableRow* rowptr = findRow(rowIndex,false);
+  if(!rowptr) {
+     return nullptr;
+  }
+  else {
+      return rowptr->findCell(colIndex);
+  }
+  return nullptr;
+
+}//getCellRowColumn
+
+//----------------------------------------------------------------------------
+TableCell* Table::incrementCellRowColumn(TableCell* cell) {
+    if(cell==nullptr) {
+      std::cout << "ERROR Table::incrementCellRowColumn Cell not found" << std::endl;
+      return nullptr;
+    }
+    else if(std::string(cell->ClassName()).compare("TableCellInt")==0)
+      dynamic_cast<TableCellInt&>(*cell)++;
+    else if(std::string(cell->ClassName()).compare("TableCellVal")==0)
+      dynamic_cast<TableCellVal&>(*cell)++;
+    return cell;
+}
+
+//----------------------------------------------------------------------------
+TableCell* Table::incrementCellRowColumn(std::string row, std::string col, bool addMissingRow) {
+    return incrementCellRowColumn(getCellRowColumn(row,col,addMissingRow));
+}
+
+//----------------------------------------------------------------------------
+TableCell* Table::incrementCellRowColumn(std::string row, unsigned int colIndex, bool addMissingRow) {
+    return incrementCellRowColumn(getCellRowColumn(row,colIndex,addMissingRow));
+}
+
+//----------------------------------------------------------------------------
+TableCell* Table::incrementCellRowColumn(unsigned int rowIndex, std::string col) {
+    return incrementCellRowColumn(getCellRowColumn(rowIndex,col));
+}
+
+//----------------------------------------------------------------------------
+TableCell* Table::incrementCellRowColumn(unsigned int rowIndex, unsigned int colIndex) {
+    return incrementCellRowColumn(getCellRowColumn(rowIndex,colIndex));
+}
 
 //----------------------------------------------------------------------------
 // A test table.
@@ -773,8 +843,51 @@ int Table::removeRow(int rowIndex) {
 }
 
 //----------------------------------------------------------------------------
+TableRow * Table::findRow(std::string row, bool addMissing, bool verbose) {
+
+   for (unsigned int r=0; r<tableRows.size(); r++) {
+      if(row.compare(tableRows[r].GetName()) == 0)
+         return &tableRows[r];
+   }
+   if(addMissing) {
+      if(tableRows.size()>0) {
+         this->addRow(tableRows[0].clone(row.c_str(),true));
+         return &tableRows.back();
+      }
+      else {
+         TableRow e(row);
+         this->addRow(e);
+         return &tableRows.back();
+      }
+   }
+   else {
+      if(verbose) cout << "ERROR  Table::Specified row (" << row << ") not found" << endl;
+      return nullptr;
+   }
+
+}//findRow()
+
+//----------------------------------------------------------------------------
+TableRow * Table::findRow(unsigned int rowIndex, bool verbose) {
+
+   if(tableRows.size()==0) {
+      if(verbose) cout << "ERROR Table::There are no rows in this table" << endl;
+      return nullptr;
+   }
+   else if(rowIndex >= tableRows.size()) {
+      if(verbose) cout << "ERROR Table::Cannot find row (" << rowIndex << ")" << endl
+                       << " Please choose a value between 0 and " << tableRows.size()-1 << endl;
+      return nullptr;
+   }
+   else {
+      return &tableRows.at(rowIndex);
+   }
+
+}//findRow()
+
+//----------------------------------------------------------------------------
 // get the index in the tableRows vector for the row with the given name
-int Table::getRowIndex(std::string rowName) const {
+int Table::getRowIndex(std::string rowName, bool verbose) const {
   int index = -1;
 
   // find the row index that corresponds to the first and last row names
@@ -784,7 +897,7 @@ int Table::getRowIndex(std::string rowName) const {
       break;
     }
   }
-  if(index == -1) {
+  if(index == -1 && verbose) {
     cout << "ERROR Table::getRowIndex could not find the index for the row named, \"" << rowName << "\"" << endl;
   }
   return index;

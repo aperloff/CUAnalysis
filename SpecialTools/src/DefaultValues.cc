@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 // This method returns the full basepath of config files.
 // Basically returns $CMSSW_BASE+"/src/CUAnalysis/Config/Run2ProductionV15/"
-std::string DefaultValues::getConfigPath(){
+std::string DefaultValues::getConfigPath(DEFS::Ana::Type analysis) {
 
   std::string basePath;
   char const* tmp = getenv("CMSSW_BASE");
@@ -22,10 +22,10 @@ std::string DefaultValues::getConfigPath(){
 // ----------------------------------------------------------------------------
 // This method returns the appropriate table of file location for each jet bin
 // and tag category
-Table DefaultValues::getFileLocationTable(DEFS::TagCat tagcat){ 
+Table DefaultValues::getFileLocationTable(DEFS::TagCat tagcat, DEFS::Ana::Type analysis) { 
 
   // The location of the table with the file locations
-  std::string fileLocationFile = getConfigPath()+"FileLocation.txt";
+  std::string fileLocationFile = getConfigPath(analysis)+"FileLocation.txt";
   
   // add the tag name and the ".txt" at the end
   //fileLocationFile += DEFS::getTagCatString(tagcat);
@@ -49,16 +49,17 @@ Table DefaultValues::getFileLocationTable(DEFS::TagCat tagcat){
 
 // ----------------------------------------------------------------------------
 std::vector < PhysicsProcess * > DefaultValues::getProcesses(std::vector<DEFS::PhysicsProcessType> processName,
-                                                        DEFS::JetBin jetBin, 
-                                                        DEFS::TagCat tagcat,
-                                                        bool forPlots,
-                                                        DEFS::NtupleType ntupleType){
+                                                             DEFS::JetBin jetBin, 
+                                                             DEFS::TagCat tagcat,
+                                                             bool forPlots,
+                                                             DEFS::NtupleType ntupleType,
+                                                             DEFS::Ana::Type analysis) {
 
   // The returning vector of processes
   std::vector<PhysicsProcess*>  proc;
 
   // get the table with the files location
-  Table fileTable = getFileLocationTable(tagcat);
+  Table fileTable = getFileLocationTable(tagcat,analysis);
 
   // Loop over all the process names
   for (unsigned int prn = 0; prn < processName.size(); prn++){
@@ -84,7 +85,7 @@ PhysicsProcess * DefaultValues::getSingleProcess(DEFS::PhysicsProcessType proces
                                                  DEFS::JetBin jetBin,
                                                  Table fileTable,
                                                  bool forPlots,
-                                                 DEFS::NtupleType ntupleType){
+                                                 DEFS::NtupleType ntupleType) {
 
    // get the process name
    std::string prName = DEFS::PhysicsProcess::getTypeString(process);
@@ -116,97 +117,20 @@ PhysicsProcess * DefaultValues::getSingleProcess(DEFS::PhysicsProcessType proces
    
 }//getSingleProcess
 
-
-// ----------------------------------------------------------------------------
-std::string  DefaultValues::getWeightForCategory(DEFS::TagCat tagcat, DEFS::PhysicsProcessType type, int iDet){
-
-  // The returning weights, for the moment just "1"
-  return "1";
-
-  /*
-    std::string wei ;
-  // Set the detector type
-  if (iDet ==  TopLepType::TCEM)
-    wei += "(h.det==1)";
-  else if (iDet ==  TopLepType::TPHX)
-    wei += "(h.det==2)";
-  else if (iDet ==  TopLepType::TCMUP)
-    wei += "(h.det==3)";
-  else if (iDet ==  TopLepType::TCMX)
-    wei += "(h.det==4)";
-  else if (iDet == 5)
-    wei += "(h.det>=5)";
-  else 
-    wei += "(h.det>0)";
-
-  // Set the QCD veto. For PHX add a h.met>25 cut
-  wei += "*((h.det==2)*(h.met>25)+(h.det != 2))";
-
-
-  // For data require 
-  if (type == DEFS::Data ){
-    if (tagcat == DEFS::pretag )    
-      wei += "*1";
-    else if (tagcat == DEFS::eq0tag)
-      wei += "*(h.ntag==0)";
-    else if (tagcat == DEFS::eq1tag)
-      wei += "*(h.ntag==1)";
-    else if (tagcat == DEFS::eq2tag)
-      wei += "*(h.ntag==2)";      
-    else
-      std::cout<<"ERROR DefaultValues::getWeightForCategory (data) called with tagcat="<<tagcat<<std::endl;     
-  }
-  // For MC require 
-  else {
-
-    // I have to apply this for the 1 and the 2 tags. Do I need it for the 0 tag ??
-    if (type != DEFS::WLight && type != DEFS::NonW)
-      if (tagcat != DEFS::pretag &&
-	  tagcat != DEFS::eq0tag )
-	wei += "*(h.ntag>0)";
-
-    // Pretag
-    //if (tag==-1) 
-    //wei += "*h.wgt*(h.tagProb0*h.passQCD + h.tagProb1*h.passQCD + h.tagProb2*( (h.det==2)*h.passQCD+(h.det!=2) ) )";
-
-    //switch on ntags
-    if (tagcat == DEFS::pretag )      // pretag sample 
-      wei += "*(h.wgt*h.passQCD)";
-    else if (tagcat == DEFS::eq0tag )      // untag sample 
-      wei += "*(h.tagProb0*h.wgt*h.passQCD)";
-    else if (tagcat == DEFS::eq1tag) // single tag sample
-      wei += "*(h.tagProb1*h.wgt*h.passQCD)";
-    else if (tagcat == DEFS::eq2tag) // double tags sample
-      wei += "*(h.tagProb2*h.wgt*( (h.det==2)*h.passQCD+(h.det!=2) ))";      
-    else
-      std::cout<<"ERROR DefaultValues::getWeightForCategory (MC) called with tagcat="<<tagcat<<std::endl;     
-
-  }
-
-  // For MC only, use triggerTO for tight, but getMet2JetTurnOn_v2 for loose leptons
-  if (type != DEFS::Data)
-    wei += "*(((h.det<5) * h.triggerTO)+ (h.det>=5) * 0.982 /(1.0 + exp(-(h.corrVtxMet-42.78)/3.681)))";
-
-
-  return wei;
-  */
-
-}//getWeightForCategory
-
 // ----------------------------------------------------------------------------
 std::vector < PhysicsProcess * > DefaultValues::getProcessesHEM(DEFS::JetBin jetBin,
                                                            DEFS::TagCat tagcat, 
-                                                           bool include_data,
+                                                           bool includeData,
                                                            bool forPlots,
                                                            DEFS::NtupleType ntupleType){
 
   std::vector<DEFS::PhysicsProcess::Type> procs;
 
-  if (include_data) {
+  if (includeData) {
     procs.push_back(DEFS::PhysicsProcess::Data_MET);
     procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_MET);
-    procs.push_back(DEFS::PhysicsProcess::Data_JetHT);
-    procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_JetHT);
+    //procs.push_back(DEFS::PhysicsProcess::Data_JetHT);
+    //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_JetHT);
     //procs.push_back(DEFS::PhysicsProcess::Data_EGamma);
     //procs.push_back(DEFS::PhysicsProcess::Data_SingleMuon);
     //procs.push_back(DEFS::PhysicsProcess::Data_HEMiss_EGamma);
@@ -225,22 +149,21 @@ std::vector < PhysicsProcess * > DefaultValues::getProcessesHEM(DEFS::JetBin jet
     //procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_600_800);
   }
 
-   return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType);
+   return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType, DEFS::Ana::HEMAnalysis);
 
 }//getProcessesHEM
 
 // ----------------------------------------------------------------------------
 std::vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin jetBin,
-                                                            DEFS::TagCat tagcat, 
-                                                            bool include_data,
-                                                            bool include_systematics,
-                                                            bool forPlots,
-                                                            DEFS::NtupleType ntupleType,
-                                                            DEFS::LeptonCat leptonCat){
+                                                                 DEFS::TagCat tagcat, 
+                                                                 bool includeData,
+                                                                 bool includeSystematics,
+                                                                 bool forPlots,
+                                                                 DEFS::NtupleType ntupleType){
 
   std::vector<DEFS::PhysicsProcess::Type> procs;
 
-  if (include_data) {
+  if (includeData) {
     //procs.push_back(DEFS::PhysicsProcess::Data_EGamma);
     //procs.push_back(DEFS::PhysicsProcess::Data_JetHT);
     procs.push_back(DEFS::PhysicsProcess::Data_MET);
@@ -263,9 +186,63 @@ std::vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin je
     procs.push_back(DEFS::PhysicsProcess::RelValHEMiss_TTbar);
   }
 
-   return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType);
+   return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType, DEFS::Ana::RA2bAnalysis);
 
 }//getProcessesRA2b
+
+// ----------------------------------------------------------------------------
+std::vector < PhysicsProcess * > DefaultValues::getProcessesPhotonFragmentation(DEFS::JetBin jetBin,
+                                                                                DEFS::TagCat tagcat,
+                                                                                bool includeData,
+                                                                                bool includeSystematics,
+                                                                                bool forPlots,
+                                                                                DEFS::NtupleType ntupleType){
+
+    std::vector<DEFS::PhysicsProcess::Type> procs;
+
+    procs.push_back(DEFS::PhysicsProcess::GJets_HT_100to200);
+    procs.push_back(DEFS::PhysicsProcess::GJets_HT_200to400);
+    procs.push_back(DEFS::PhysicsProcess::GJets_HT_400to600);
+    procs.push_back(DEFS::PhysicsProcess::GJets_HT_600toInf);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_200to300);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_300to500);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_500to700);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_700to1000);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_1000to1500);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_1500to2000);
+    procs.push_back(DEFS::PhysicsProcess::QCD_HT_2000toInf);
+    procs.push_back(DEFS::PhysicsProcess::GJets_DR_0p4_HT_100to200);
+    procs.push_back(DEFS::PhysicsProcess::GJets_DR_0p4_HT_200to400);
+    procs.push_back(DEFS::PhysicsProcess::GJets_DR_0p4_HT_400to600);
+    procs.push_back(DEFS::PhysicsProcess::GJets_DR_0p4_HT_600toInf);
+
+    return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType, DEFS::Ana::PhotonFragmentation);
+
+}//getProcessesPhotonFragmentation
+
+// ----------------------------------------------------------------------------
+std::pair<double,double> DefaultValues::getCrossSectionAndError(DEFS::Ana::Type analysis, TString channelName)
+{
+  Table table;
+  double xsec;
+  double error;
+
+  table.parseFromFile(getConfigPath(analysis)+"CrossSections_8TeV.txt","TableCellVal");
+  TableCell * cell = table.getCellRowColumn(std::string(channelName),"CrossSection");
+  if(cell){
+    xsec = ((TableCellVal*)cell)->val.value;
+    error = ((TableCellVal*)cell)->val.error;
+    if (xsec==0)
+      std::cout << "WARNING::getCrossSection::The cross section for " << channelName << " is 0.0 +/- 0.0" << std::endl;
+    return std::make_pair(xsec,error);
+  } else{
+    std::cout << "WARNING::getCrossSection::channelName " << channelName 
+    << " not recognized. Returning -1 for the cross section." << std::endl 
+    << "The events will have the same scale as the MC sample, but on a negative scale." << std::endl 
+    << "Please check channel names." << std::endl;
+    return std::make_pair(-1.0,-1.0);
+  }
+}//getCrossSection
 
 // ----------------------------------------------------------------------------
 void DefaultValues::DestroyCanvases() {
@@ -276,65 +253,34 @@ void DefaultValues::DestroyCanvases() {
 }
 
 // ----------------------------------------------------------------------------
-TObject* DefaultValues::getConfigTObject(TString objectFile, TString oname, TString newName) {
- 
-   TString basePath = getConfigPath() + objectFile;
-
-   TObject * hnew;
-   TString currentDir = gDirectory->GetPathStatic();
+template<class T>
+T* getConfigObject(std::string filename, std::string objectName, std::string newName, DEFS::Ana::Type analysis) {
+   std::string basepath = DefaultValues::getConfigPath(analysis) + filename;
+   std::string currentDir = gDirectory->GetPathStatic();
 
    // open the file
-   TFile * ifile = TFile::Open(basePath);
+   TFile * ifile = TFile::Open(basepath.c_str());
    if (!ifile->IsOpen()) {
-      std::cout << "\tERROR DefaultValues::getConfigHisto file "+basePath
-           << " could not be opened." << std::endl;
-      return 0;
+      std::cout << "\tERROR DefaultValues::getConfigObject file "+basepath
+                << " could not be opened." << std::endl;
+      return nullptr;
    }
    
    // get the histogram from the inside
-   TObject * htemp = ifile->Get(oname);
-
-   if(htemp==0) {
-      std::cout << "ERROR DefaultValues::getConfigTObject the object " << oname << " was not found in file " << basePath << std::endl;
-      assert(htemp!=0);
+   T* tmp = nullptr;
+   ifile->GetObject(objectName.c_str(), tmp);
+   if(tmp==nullptr) {
+      std::cout << "ERROR DefaultValues::getConfigObject the object " << objectName << " was not found in file " << basepath << std::endl;
+      assert(tmp!=nullptr);
    }
    
-   gDirectory->cd(currentDir);
+   gDirectory->cd(currentDir.c_str());
 
    // clone it, assigne it to QCDWeightFunc and close the file
-   hnew = htemp->Clone(newName);
+   T* hnew = (T*)tmp->Clone(newName.c_str());
    ifile->Close();
 
    return hnew;
-
-}
-
-// ----------------------------------------------------------------------------
-TH1* DefaultValues::getConfigTH1(TString histoFile, TString hname, TString newName) {
-
-   TH1* h = (TH1*) getConfigTObject(histoFile, hname, newName);
-
-   if(h==0) {
-      std::cout << "ERROR DefaultValues::getConfigTH1 the object found in file " << histoFile << "cannot be cast to a TH1*" << std::endl;
-      assert(h!=0);
-   }
-
-   return h;
-
-}
-
-// ----------------------------------------------------------------------------
-TH2* DefaultValues::getConfigTH2(TString histoFile, TString hname, TString newName) {
-
-   TH2* h = (TH2*) getConfigTObject(histoFile, hname, newName);
-
-   if(h==0) {
-      std::cout << "ERROR DefaultValues::getConfigTH2 the object found in file " << histoFile << "cannot be cast to a TH2*" << std::endl;
-      assert(h!=0);
-   }
-
-   return h;
-
 }
 
 // ----------------------------------------------------------------------------

@@ -7,10 +7,14 @@
 #define TABLE_DEF
 
 //My libraries
-#include "CUAnalysis/SpecialTools/interface/Value.hh"
 #include "CUAnalysis/SpecialTools/interface/TableFormat.hh"
 #include "CUAnalysis/SpecialTools/interface/TableRow.hh"
 #include "CUAnalysis/SpecialTools/interface/TableCell.hh"
+#include "CUAnalysis/SpecialTools/interface/TableCellText.hh"
+#include "CUAnalysis/SpecialTools/interface/TableCellInt.hh"
+#include "CUAnalysis/SpecialTools/interface/TableCellVal.hh"
+#include "CUAnalysis/SpecialTools/interface/Value.hh"
+#include "CUAnalysis/AuxFunctions/interface/AuxFunctions.hh"
 
 //C++ libraries
 #include <string>
@@ -91,8 +95,28 @@ public :
   std::vector<TableRow> getRows() const { return tableRows;} ;
 
   // get the TableCell object for a given Row and Column
-  TableCell* getCellRowColumn(std::string row, std::string col);
-      
+  // cannot add a missing row when given only a row index because the new name is unknown
+  //   could pass a new string name as a parameter, but that seems a little unsafe or haphazard
+  TableCell* getCellRowColumn(std::string row, std::string col, bool addMissingRow = false);
+  TableCell* getCellRowColumn(std::string row, unsigned int colIndex, bool addMissingRow = false);
+  TableCell* getCellRowColumn(unsigned int rowIndex, std::string col);
+  TableCell* getCellRowColumn(unsigned int rowIndex, unsigned int colIndex);
+  //Alias to getCellRowColumn()
+  //From https://stackoverflow.com/questions/9864125/c11-how-to-alias-a-function
+  template <typename... Args>
+  auto at(Args&&... args) -> decltype(getCellRowColumn(std::forward<Args>(args)...)) {
+    return getCellRowColumn(std::forward<Args>(args)...);
+  }
+
+  // increment a cell based on its class
+  // currently only TableCellInt and TableCellVal are supported
+  // makes use of getCellRowColumn()
+  TableCell* incrementCellRowColumn(TableCell* cell);
+  TableCell* incrementCellRowColumn(std::string row, std::string col, bool addMissingRow = false);
+  TableCell* incrementCellRowColumn(std::string row, unsigned int colIndex, bool addMissingRow = false);
+  TableCell* incrementCellRowColumn(unsigned int rowIndex, std::string col);
+  TableCell* incrementCellRowColumn(unsigned int rowIndex, unsigned int colIndex);
+
   // A test to fill the table
   void fillWithTest();
 
@@ -107,8 +131,14 @@ public :
   // get the origin of the table
   std::string getTableOrigin() {return tableOrigin;}
 
+  // find a row and return a pointer to it
+  // if the row is missing return a nullptr
+  // optionally add the row if it is missing
+  TableRow* findRow(std::string row, bool addMissing = false, bool verbose = false);
+  TableRow* findRow(unsigned int rowIndex, bool verbose = false);
+
   // get the index in the tableRows vector for the row with the given name
-  int getRowIndex(std::string rowName) const;
+  int getRowIndex(std::string rowName, bool verbose = false) const;
 
   // squash a set of rows together (delete N-1 rows and rename the last one). The rows must be contiguous.
   int squashRows(std::string beginRowName, std::string endRowName, std::string newName = "");

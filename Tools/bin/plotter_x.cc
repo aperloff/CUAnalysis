@@ -50,7 +50,6 @@ namespace UserFunctions
     DEFS::LeptonBin leptonBin;
     DEFS::JetBin jetBin;
     DEFS::TagCat tagCat;
-    DEFS::ControlRegion controlRegion;
     DEFS::NtupleType ntupleType;
     int limitBranches = 0;
     PUreweight* puweight;
@@ -84,10 +83,6 @@ namespace UserFunctions
     template <class T, class U>
     std::string concatString(const T& obj1, const U& obj2);
 
-    /// increments the specified tables
-    inline void incrementCounter(int nCut, string pName, Table &t1) {
-        (*(t1(DEFS::getCutLevelString((DEFS::CutLevel)nCut),pName)))++;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +149,11 @@ void UserFunctions::fillPlots(PlotFiller::MapOfPlots &  plots, TString processNa
             plots[leptonCat]["MET_HEMRegion"]->Fill(ntuple->MET,weight);
     }
 
+    if(UserFunctions::analysisCat == DEFS::Ana::PhotonFragmentation) {
+        plots[leptonCat]["minDeltaRPhotonHardParton_widerange"]->Fill(ntuple->madMinPhotonDeltaR,weight);
+        plots[leptonCat]["minDeltaRPhotonHardParton_narrowrange"]->Fill(ntuple->madMinPhotonDeltaR,weight);
+    }
+
     if(UserFunctions::doBenchmarks) {
         UserFunctions::func_benchmark->Stop("fillPlots");
         float rt = 0, ct = 0;
@@ -174,20 +174,31 @@ bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* pr
 
     // Event Filters
     // An AND condition of event filters
-    if(!ntuple->HBHEIsoNoiseFilter || !ntuple->HBHENoiseFilter || !ntuple->JetID ||
-       !ntuple->BadChargedCandidateFilter || !ntuple->EcalDeadCellTriggerPrimitiveFilter)
-        return false;
-    if(ntuple->PFCaloMETRatio >= 5)
-        return false;
+    if(!ntuple->HBHEIsoNoiseFilter) {return false;}
+    cutFlow.incrementCellRowColumn("HBHEIsoNoiseFilter",proc->name,true);
+    if(!ntuple->HBHENoiseFilter) {return false;}
+    cutFlow.incrementCellRowColumn("HBHENoiseFilter",proc->name,true);
+    if(!ntuple->ecalBadCalibFilter) {return false;}
+    cutFlow.incrementCellRowColumn("ecalBadCalibFilter",proc->name,true);
+    if(!ntuple->EcalDeadCellTriggerPrimitiveFilter) {return false;}
+    cutFlow.incrementCellRowColumn("EcalDeadCellTriggerPrimitiveFilter",proc->name,true);
+    if(!ntuple->BadChargedCandidateFilter) {return false;}
+    cutFlow.incrementCellRowColumn("BadChargedCandidateFilter",proc->name,true);
+    if(!ntuple->globalSuperTightHalo2016Filter) {return false;}
+    cutFlow.incrementCellRowColumn("globalSuperTightHalo2016Filter",proc->name,true);
+    if(ntuple->PFCaloMETRatio >= 5) {return false;}
+    cutFlow.incrementCellRowColumn("PFCaloMETRatio",proc->name,true);
     for(unsigned int ijet=0; ijet<ntuple->Jets->size(); ijet++) {
         if(ntuple->Jets->at(ijet).Pt()>200 && ntuple->Jets_muonEnergyFraction->at(ijet)>0.5 &&
-            abs(mymath::deltaPhi(ntuple->Jets->at(ijet).Phi(),ntuple->METPhi)) > TMath::Pi()-0.4 )
+           mymath::deltaPhi(ntuple->Jets->at(ijet).Phi(),ntuple->METPhi) > (TMath::Pi()-0.4) ) {
             return false;
+        }
     }
-    // Missing filters:
-    //ntuple->eeBadScFilter
-    //ntuple->globalSuperTightHalo2016Filter
-    incrementCounter(1,proc->name,cutFlow);
+    cutFlow.incrementCellRowColumn("noMuonJet",proc->name,true);
+    if(!ntuple->PrimaryVertexFilter) {return false;}
+    cutFlow.incrementCellRowColumn("NvtxAbove1",proc->name,true);
+    if(!ntuple->JetID) {return false;}
+    cutFlow.incrementCellRowColumn("JetID",proc->name,true);
 
     // An OR condition of several triggers
     vector<string> triggers_to_check = {"HLT_PFMET100_PFMHT100_IDTight_v","HLT_PFMET110_PFMHT110_IDTight_v",
@@ -210,26 +221,26 @@ bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* pr
     //skip event if finished searching and no HLT lines found
     if(goodTrigger == false)
         return false;
-    incrementCounter(2,proc->name,cutFlow);
+    cutFlow.incrementCellRowColumn("c1:Triggers",proc->name,true);
 
     // Count the number of electrons/muons Aditee style
     // Uncomment this block of code and the correct NLeptons line
-    // if(ntuple->Electrons->size()>1 || ntuple->Muons->size()>1)
-    //    return false;
-    // int nelectrons=0;
-    // for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
-    //    if(ntuple->Electrons->at(ielectron).Pt()>20. && abs(ntuple->Electrons->at(ielectron).Eta())<2.1 &&
-    //       ntuple->Electrons_MTW->at(ielectron) < 100. && ntuple->Electrons_passIso->at(ielectron)) {
-    //       nelectrons++;
-    //    }
-    // }
-    // int nmuons=0;
-    // for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
-    //    if(ntuple->Muons->at(imuon).Pt()>20. && abs(ntuple->Muons->at(imuon).Eta())<2.1 &&
-    //       ntuple->Muons_MTW->at(imuon) < 100. && ntuple->Muons_passIso->at(imuon)) {
-    //       nmuons++;
-    //    }
-    // }
+    if(ntuple->Electrons->size()>1 || ntuple->Muons->size()>1)
+       return false;
+    int nelectrons=0;
+    for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
+       if(ntuple->Electrons->at(ielectron).Pt()>20. && abs(ntuple->Electrons->at(ielectron).Eta())<2.1 &&
+          ntuple->Electrons_MTW->at(ielectron) < 100. && ntuple->Electrons_passIso->at(ielectron)) {
+          nelectrons++;
+       }
+    }
+    int nmuons=0;
+    for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
+       if(ntuple->Muons->at(imuon).Pt()>20. && abs(ntuple->Muons->at(imuon).Eta())<2.1 &&
+          ntuple->Muons_MTW->at(imuon) < 100. && ntuple->Muons_passIso->at(imuon)) {
+          nmuons++;
+       }
+    }
 
     // Count the number of electrons/muons with the base cuts and iso cuts (to prove that is what Aditee is missing)
     // Uncommenting the block below and the other NLeptons definition is successful in recovering my numbers using the
@@ -250,16 +261,27 @@ bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* pr
     // }
 
     // Check the number of leptons
-    int NLeptons = ntuple->NElectrons+ntuple->NMuons;
-    //int NLeptons = nelectrons+nmuons;
+    //int NLeptons = ntuple->NElectrons+ntuple->NMuons;
+    int NLeptons = nelectrons+nmuons;
     if ((UserFunctions::leptonBin == DEFS::leptons0) && ((NLeptons)!=0))
         return false;
     else if ((UserFunctions::leptonBin == DEFS::lepton1) && (NLeptons>1 || NLeptons==0))
         return false;
-    incrementCounter(3,proc->name,cutFlow);
+    cutFlow.incrementCellRowColumn("c2:NLeptons",proc->name,true);
 
-    if (controlRegion == DEFS::all)
-        return true;
+    //
+    // Analysis specific cuts
+    //
+    if(UserFunctions::analysisCat==DEFS::Ana::PhotonFragmentation) {
+        if(ntuple->Photons->size()!=1 || ntuple->Photons->at(0).Pt()<200. || ntuple->Photons_fullID->at(0)!=1 || 
+           ntuple->Electrons->size()!=0 || ntuple->Muons->size()!=0 ||
+           ntuple->isoElectronTracks!=0 || ntuple->isoMuonTracks!=0 || ntuple->isoPionTracks!=0 ||
+           ntuple->DeltaPhi1<0.5 || ntuple->DeltaPhi2<0.5 || ntuple->DeltaPhi3<0.3 || ntuple->DeltaPhi4<0.3 ||
+           ntuple->NJets<2 || ntuple->HT<300. || ntuple->MHT<300. || ntuple->JetID!=1 || ntuple->BTags!=0)
+            return false;
+        if(utilities::ci_find_substr(proc->name,string("QCD"))!=-1 && ntuple->madMinDeltaRStatus!=1)
+            return false;
+    }
 
     return true;  
 } //eventPassCuts
@@ -360,8 +382,6 @@ int main(int argc,char**argv) {
     string           anaCat               = cl.getValue<string>    ("ana",             "HEMAnalysis");
     UserFunctions::analysisCat            = DEFS::Ana::getAnaType  (anaCat);
     int              batchNumber          = cl.getValue<int>       ("batchNumber",                -1);
-    string           cutRegion            = cl.getValue<string>    ("cutRegion",               "all");
-    UserFunctions::controlRegion          = DEFS::getControlRegion (cutRegion);
     bool             debug                = cl.getValue<bool>      ("debug",                   false);
     UserFunctions::doBenchmarks           = cl.getValue<bool>      ("doBenchmarks",            false);
     UserFunctions::doPUreweight           = cl.getValue<bool>      ("doPUrewt",                 true);
@@ -420,7 +440,7 @@ int main(int argc,char**argv) {
     if(debug) {
         vector<DEFS::PhysicsProcess::Type> p;
         p.push_back(DEFS::PhysicsProcess::Data_JetHT);
-        procs = DefaultValues::getProcesses(p, UserFunctions::jetBin, UserFunctions::tagCat, true, UserFunctions::ntupleType);
+        procs = DefaultValues::getProcesses(p, UserFunctions::jetBin, UserFunctions::tagCat, true, UserFunctions::ntupleType, DEFS::Ana::RA2bAnalysis);
         printProcesses(procs);
     }
     else if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
@@ -429,8 +449,8 @@ int main(int argc,char**argv) {
     }
     else if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis) {
         procs = DefaultValues::getProcessesRA2b(UserFunctions::jetBin, UserFunctions::tagCat,
-                                                include_data, include_systematics,true,
-                                                UserFunctions::ntupleType, UserFunctions::leptonCat);
+                                                include_data, include_systematics, true,
+                                                UserFunctions::ntupleType);
     }
     else {
         cout << "ERROR::plotter_x Unknown analysis type. The program cannot continue." << endl;
@@ -487,8 +507,12 @@ int main(int argc,char**argv) {
         // Fill all the plots 
         doPlotter(plots, procs, cutFlow, maxEvts);
 
-        // Print the cut flot table
+        // Print the cut flow table with the full cut flow
         cutFlow.printTable(cout);
+        // Print the cut flow table after squashing some rows
+        Table cutFlowSquashed = cutFlow;
+        cutFlowSquashed.squashRows("HBHEIsoNoiseFilter","JetID","c0:Filters");
+        cutFlowSquashed.printTable(cout);
     }
     else {
         // Open the input file
@@ -864,13 +888,31 @@ PlotFiller::MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData
         plots[leptonCat][string(title)] = a;
     }
 
+    //
+    // Photon quantities
+    //
+    if(UserFunctions::analysisCat==DEFS::Ana::PhotonFragmentation) {
+        title = "minDeltaRPhotonHardParton_widerange";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 40, 0., 4.0),
+                              {"min #DeltaR (#gamma, hard partons)","Number of Events / 0.01"},
+                              make_pair(0.,4.0));   
+        plots[leptonCat][string(title)] = a;
+    
+        title = "minDeltaRPhotonHardParton_narrowrange";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 16, 0., 0.8),
+                              {"min #DeltaR (#gamma, hard partons)","Number of Events / 0.05"},
+                              make_pair(0.,0.8));   
+        plots[leptonCat][string(title)] = a;
+    }
+
     for(auto iplot=plots[leptonCat].begin(); iplot!=plots[leptonCat].end(); iplot++) {
         dynamic_cast<FormattedPlot*>(iplot->second)->normToData = normToData;
         dynamic_cast<FormattedPlot*>(iplot->second)->stacked = false;
         dynamic_cast<FormattedPlot*>(iplot->second)->leptonCat = leptonCat;
         dynamic_cast<FormattedPlot*>(iplot->second)->jetBin = UserFunctions::jetBin;
         dynamic_cast<FormattedPlot*>(iplot->second)->tagCat = UserFunctions::tagCat;
-        dynamic_cast<FormattedPlot*>(iplot->second)->controlRegion = UserFunctions::controlRegion;
         dynamic_cast<FormattedPlot*>(iplot->second)->overlaySignalName = signalName;
         dynamic_cast<FormattedPlot*>(iplot->second)->overlaySignalFactor = signalFactor;
         dynamic_cast<FormattedPlot*>(iplot->second)->luminosity = luminosity;
@@ -947,15 +989,12 @@ Table makePlotTable(PlotFiller::MapOfPlots& plots) {
 
 //______________________________________________________________________________
 Table getInitializedCutTable(const vector<PhysicsProcess*> &procs) {
-    vector<string> cuts;
-    for (unsigned int c = 0; c<DEFS::nCutLevel; c++) {
-        cuts.push_back(DEFS::getCutLevelString((DEFS::CutLevel)c));
-    }
+    vector<string> cuts = {"NtupleLevel"};
     vector<string> pnames;
     for(auto p : procs) {
         pnames.push_back(p->name);
     }
-    return Table("cutFlow",cuts,pnames,"TableCellInt");
+    return Table("cutFlow",cuts,pnames,"TableCellVal");
 }
 
 //______________________________________________________________________________

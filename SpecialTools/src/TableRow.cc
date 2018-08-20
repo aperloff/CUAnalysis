@@ -151,6 +151,49 @@ void TableRow::printRow(std::ostream &out, std::string style) {
 }
 
 //----------------------------------------------------------------------------
+TableCell* TableRow::findCell(std::string col) {
+   for (unsigned int c=0; c<cellEntries.size(); c++) {
+      if (col.compare(cellEntries[c]->GetName()) == 0) {
+         return cellEntries[c];
+      }
+   }
+   
+   cout << "ERROR  TableRow::find Cell Specified column (" << col << ") not found" << endl
+        << "\tReturning nullptr" << endl;
+   return nullptr;
+}
+
+//----------------------------------------------------------------------------
+TableCell* TableRow::findCell(unsigned int colIndex) {
+   if(cellEntries.size()==0) {
+       cout << "ERROR TableRow::findCell There are no cells in the row " << GetName() << endl;
+       return nullptr;
+   }
+   else if(colIndex >= cellEntries.size()) {
+       cout << "ERROR Table::findCell Cannot find column (" << colIndex << ")" << endl
+            << " Please choose a value between 0 and " << cellEntries.size()-1 << endl;
+       return nullptr;
+   }
+   return cellEntries[colIndex];
+}
+
+//----------------------------------------------------------------------------
+TableRow & TableRow::reset() {
+   for(auto cell : cellEntries) {
+      cell->reset();
+   }
+   return *this;
+}//reset
+
+//----------------------------------------------------------------------------
+TableRow & TableRow::clone(std::string name, bool reset) {
+   if(name.empty()) name = std::string(GetName())+"_clone";
+   TableRow* ret = (TableRow*)this->Clone(name.c_str());
+   if(reset) ret->reset();
+   return *ret;
+}//clone
+
+//----------------------------------------------------------------------------
 TableRow & TableRow::operator=(const TableRow & rhs){
 
   // First delete all entries in this row

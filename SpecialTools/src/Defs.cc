@@ -15,9 +15,11 @@ namespace DEFS {
     string getTypeString(Type type){
       
       //the returning string
-      if      (type == RA2bAnalysis)  return "RA2/b Analysis";
-      else if (type == HEMAnalysis)   return "HEM 15/16 Analysis";
-      else if (type == UNKNOWN)       return "UNKNOWN Analysis";
+      if      (type == RA2bAnalysis)        return "RA2/b Analysis";
+      else if (type == HEMAnalysis)         return "HEM 15/16 Analysis";
+      else if (type == DataComparison)      return "DataComparison";
+      else if (type == PhotonFragmentation) return "PhotonFragmentation";
+      else if (type == UNKNOWN)             return "UNKNOWN Analysis";
 
       cout<<"ERROR DEFS::getProcessTypeString AnalysisType "<<type<<" is unknown"<<endl;   
       
@@ -26,9 +28,11 @@ namespace DEFS {
     }//getAnalysisTypeString
 
     Type getAnaType(std::string str) {
-       if     (str == "RA2bAnalysis")  return DEFS::Ana::RA2bAnalysis;
-       else if(str == "HEMAnalysis")   return DEFS::Ana::HEMAnalysis;
-       else if(str == "UNKNOWN")       return DEFS::Ana::UNKNOWN;
+       if     (str == "RA2bAnalysis")        return DEFS::Ana::RA2bAnalysis;
+       else if(str == "HEMAnalysis")         return DEFS::Ana::HEMAnalysis;
+       else if(str == "DataComparison")      return DEFS::Ana::DataComparison;
+       else if(str == "PhotonFragmentation") return DEFS::Ana::PhotonFragmentation;
+       else if(str == "UNKNOWN")             return DEFS::Ana::UNKNOWN;
 
        cout<<" ERROR  DEFS::getAnaType str ="<<str<<" not found"<<endl;
 
@@ -60,6 +64,21 @@ namespace DEFS {
       else if(str == "RelValHEMiss_QCD_Pt_80_120")                return DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_80_120;
       else if(str == "RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100")   return DEFS::PhysicsProcess::RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100;
       else if(str == "RelValHEMiss_TTbar")                        return DEFS::PhysicsProcess::RelValHEMiss_TTbar;
+      else if(str == "GJets_HT-100to200")                         return DEFS::PhysicsProcess::GJets_HT_100to200;
+      else if(str == "GJets_HT-200to400")                         return DEFS::PhysicsProcess::GJets_HT_200to400;
+      else if(str == "GJets_HT-400to600")                         return DEFS::PhysicsProcess::GJets_HT_400to600;
+      else if(str == "GJets_HT-600toInf")                         return DEFS::PhysicsProcess::GJets_HT_600toInf;
+      else if(str == "QCD_HT-200to300")                           return DEFS::PhysicsProcess::QCD_HT_200to300;
+      else if(str == "QCD_HT-300to500")                           return DEFS::PhysicsProcess::QCD_HT_300to500;
+      else if(str == "QCD_HT-500to700")                           return DEFS::PhysicsProcess::QCD_HT_500to700;
+      else if(str == "QCD_HT-700to1000")                          return DEFS::PhysicsProcess::QCD_HT_700to1000;
+      else if(str == "QCD_HT-1000to1500")                         return DEFS::PhysicsProcess::QCD_HT_1000to1500;
+      else if(str == "QCD_HT-1500to2000")                         return DEFS::PhysicsProcess::QCD_HT_1500to2000;
+      else if(str == "QCD_HT-2000toInf")                          return DEFS::PhysicsProcess::QCD_HT_2000toInf;
+      else if(str == "GJets_DR-0p4_HT-100to200")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_100to200;
+      else if(str == "GJets_DR-0p4_HT-200to400")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_200to400;
+      else if(str == "GJets_DR-0p4_HT-400to600")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_400to600;
+      else if(str == "GJets_DR-0p4_HT-600toInf")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_600toInf;
 
       else if(str == "UNKNOWN")              return  DEFS::PhysicsProcess::UNKNOWN;
  
@@ -90,6 +109,21 @@ namespace DEFS {
       else if (type == RelValHEMiss_QCD_Pt_80_120)                return string("RelValHEMiss_QCD_Pt_80_120");
       else if (type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100)   return string("RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100");
       else if (type == RelValHEMiss_TTbar)                        return string("RelValHEMiss_TTbar");
+      else if (type == GJets_HT_100to200)                         return string("GJets_HT-100to200");
+      else if (type == GJets_HT_200to400)                         return string("GJets_HT-200to400");
+      else if (type == GJets_HT_400to600)                         return string("GJets_HT-400to600");
+      else if (type == GJets_HT_600toInf)                         return string("GJets_HT-600toInf");
+      else if (type == QCD_HT_200to300)                           return string("QCD_HT-200to300");
+      else if (type == QCD_HT_300to500)                           return string("QCD_HT-300to500");
+      else if (type == QCD_HT_500to700)                           return string("QCD_HT-500to700");
+      else if (type == QCD_HT_700to1000)                          return string("QCD_HT-700to1000");
+      else if (type == QCD_HT_1000to1500)                         return string("QCD_HT-1000to1500");
+      else if (type == QCD_HT_1500to2000)                         return string("QCD_HT-1500to2000");
+      else if (type == QCD_HT_2000toInf)                          return string("QCD_HT-2000toInf");
+      else if (type == GJets_DR_0p4_HT_100to200)                  return string("GJets_DR-0p4_HT-100to200");
+      else if (type == GJets_DR_0p4_HT_200to400)                  return string("GJets_DR-0p4_HT-200to400");
+      else if (type == GJets_DR_0p4_HT_400to600)                  return string("GJets_DR-0p4_HT-400to600");
+      else if (type == GJets_DR_0p4_HT_600toInf)                  return string("GJets_DR-0p4_HT-600toInf");
 
       else if (type == UNKNOWN)              return string("UNKNOWN");
 
@@ -131,6 +165,12 @@ namespace DEFS {
           return string("SMS-T1tttt (HEM)");
        else if (type == RelValHEMiss_TTbar)
           return string("t#bar{t} (HEM)");
+       else if (type == GJets_HT_100to200 ||type == GJets_HT_200to400 ||type == GJets_HT_400to600 ||type == GJets_HT_600toInf)
+          return string("GJets");
+       else if (type == QCD_HT_200to300 || type == QCD_HT_300to500 || type == QCD_HT_500to700 || type == QCD_HT_700to1000 || type == QCD_HT_1000to1500 || type == QCD_HT_1500to2000 || type == QCD_HT_2000toInf)
+          return string("QCD");
+       else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf)
+          return string("GJets_DR-0p4");
        else
           return getTypeString(type);
     }//getTypeTitle
@@ -151,6 +191,10 @@ namespace DEFS {
                 type == RelValHEMiss_QCD_FlatPt_15_3000HS || type == RelValHEMiss_QCD_Pt_600_800 || type == RelValHEMiss_QCD_Pt_80_120) return kRed-6;
        else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100 || type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100) return kMagenta-3;
        else if (type == RelVal_TTbar || type == RelValHEMiss_TTbar) return kRed-3;
+       else if (type == GJets_HT_100to200 ||type == GJets_HT_200to400 ||type == GJets_HT_400to600 ||type == GJets_HT_600toInf) return kBlack;
+       else if (type == QCD_HT_200to300 || type == QCD_HT_300to500 || type == QCD_HT_500to700 || type == QCD_HT_700to1000 ||
+                type == QCD_HT_1000to1500 || type == QCD_HT_1500to2000 || type == QCD_HT_2000toInf) return kBlack;
+       else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf) return kBlack;
        else{
           cout << "WARNING Plotter::GetProcessColor() Unknown process name=|"<<getTypeString(type)
                <<"|. Returning process color as kBlack." << endl;
@@ -178,6 +222,10 @@ namespace DEFS {
        else if (type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100) return kOpenCircle;
        else if (type == RelVal_TTbar) return kFullTriangleUp;
        else if (type == RelValHEMiss_TTbar) return kOpenTriangleUp;
+       else if (type == GJets_HT_100to200 ||type == GJets_HT_200to400 ||type == GJets_HT_400to600 ||type == GJets_HT_600toInf) return kFullCircle;
+       else if (type == QCD_HT_200to300 || type == QCD_HT_300to500 || type == QCD_HT_500to700 || type == QCD_HT_700to1000 ||
+                type == QCD_HT_1000to1500 || type == QCD_HT_1500to2000 || type == QCD_HT_2000toInf) return kFullCircle;
+       else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf) return kFullCircle;
        else{
           cout << "WARNING Plotter::GetProcessColor() Unknown process name=|"<<getTypeString(type)
                <<"|. Returning process marker as kFullCircle." << endl;
@@ -434,51 +482,6 @@ namespace DEFS {
 
     cout<<"ERROR  DEFS::getCutLevel cannot find the given string"<<endl;
     return NtupleLevel;
-
-   }
-   
-   //---------------------------------------------------------------------------
-   // A routine that returns a string given the type
-   std::string getControlRegionString(ControlRegion type){
-      
-      if (type == all)           return "all";
-      else if (type == signal)   return "signal";
-      else if (type == control0) return "control0";
-      else if (type == control1) return "control1";
-      else if (type == control2) return "control2";
-      else if (type == control3) return "control3";
-      else if (type == control4) return "control4";
-      else if (type == control5) return "control5";
-      else if (type == control6) return "control6";
-      else if (type == control7) return "control7";
-      else if (type == control8) return "control8";
-      else if (type == control9) return "control9";
-      else if (type == None)     return "None";
-
-      cout<<"ERROR DEFS::getControlregionString cannot find the given type"<<endl;
-      return "ERROR";
-
-   }
-
-   // A routine that returns a ControlRegion given a string
-   DEFS::ControlRegion getControlRegion(std::string str){
-      
-      if (str == "all")           return all;
-      else if (str == "signal")   return signal;
-      else if (str == "control0") return control0;
-      else if (str == "control1") return control1;
-      else if (str == "control2") return control2;
-      else if (str == "control3") return control3;
-      else if (str == "control4") return control4;
-      else if (str == "control5") return control5;
-      else if (str == "control6") return control6;
-      else if (str == "control7") return control7;
-      else if (str == "control8") return control8;
-      else if (str == "control9") return control9;
-      else if (str == "None")     return None;
-
-      cout<<"ERROR  DEFS::getControlRegion cannot find the given string"<<endl;
-      return None;
 
    }
 

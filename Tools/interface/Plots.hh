@@ -155,9 +155,6 @@ public:
    // The tag cat bin that this plot is for
    DEFS::TagCat tagCat;
 
-   // The cut flow used to make the plot
-   DEFS::ControlRegion controlRegion;
-
    // The name and multiplicative factor for the signal histogram
    double overlaySignalFactor;
    TString overlaySignalName;
@@ -171,7 +168,7 @@ private:
    TH1 * findTitleInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
    TH1 * titleContainedInTH1Vector(TString title, std::vector<TH1*> groupedHistos);
 
-   ClassDef (FormattedPlot,4);
+   ClassDef (FormattedPlot,5);
 };
 
 #endif

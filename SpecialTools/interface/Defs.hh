@@ -26,6 +26,8 @@ namespace DEFS{
     enum Type{
       RA2bAnalysis,
       HEMAnalysis,
+      DataComparison,
+      PhotonFragmentation,
       UNKNOWN
     };
   
@@ -45,6 +47,11 @@ namespace DEFS{
                Data_HEMiss_EGamma, Data_HEMiss_JetHT, Data_HEMiss_MET, Data_HEMiss_SingleMuon,
                RelVal_QCD_FlatPt_15_3000HS, RelVal_QCD_Pt_600_800, RelVal_QCD_Pt_80_120, RelVal_SMS_T1tttt_mGl1500_mLSP100, RelVal_TTbar,
                RelValHEMiss_QCD_FlatPt_15_3000HS, RelValHEMiss_QCD_Pt_600_800, RelValHEMiss_QCD_Pt_80_120, RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100, RelValHEMiss_TTbar,
+
+               GJets_HT_100to200, GJets_HT_200to400, GJets_HT_400to600, GJets_HT_600toInf,
+               QCD_HT_200to300, QCD_HT_300to500, QCD_HT_500to700, QCD_HT_700to1000, QCD_HT_1000to1500, QCD_HT_1500to2000, QCD_HT_2000toInf,
+               GJets_DR_0p4_HT_100to200, GJets_DR_0p4_HT_200to400, GJets_DR_0p4_HT_400to600, GJets_DR_0p4_HT_600toInf,
+
                UNKNOWN};
 
     // A routine that returns the type given a string 
@@ -176,19 +183,6 @@ namespace DEFS{
 
   // A routine that returns a CutLevel given a string
   CutLevel getCutLevel(std::string str);
-
-  // ---------------------------------------------------------------
-  //            ALL ABOUT THE CONTROL REGIONS
-  // ---------------------------------------------------------------
-
-  enum ControlRegion {all, signal, control0, control1, control2, control3, control4, control5, control6, control7, control8, control9, None};
-  static const unsigned int nControlRegion = 13;
-
-  //A routine that returns a string given the type
-  std::string getControlRegionString(ControlRegion type);
-
-  // A routine that returns a CutLevel given a string
-  ControlRegion getControlRegion(std::string str);
 
   // ---------------------------------------------------------------
   //            ALL ABOUT THE NTUPLE TYPES

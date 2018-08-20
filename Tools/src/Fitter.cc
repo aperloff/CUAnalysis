@@ -35,8 +35,8 @@ minFit(0), funcFit(0)
 
    fProcessNames = fproc;
    for(unsigned int nproc=0; nproc<fProcessNames.size(); nproc++) {
-      fProcessXsec.push_back(DefaultValues::getCrossSectionAndError(fProcessNames[nproc]).first);
-      fProcessXsecError.push_back(DefaultValues::getCrossSectionAndError(fProcessNames[nproc]).second);
+      fProcessXsec.push_back(DefaultValues::getCrossSectionAndError(DEFS::Ana::RA2bAnalysis, fProcessNames[nproc]).first);
+      fProcessXsecError.push_back(DefaultValues::getCrossSectionAndError(DEFS::Ana::RA2bAnalysis, fProcessNames[nproc]).second);
    }
 }
 

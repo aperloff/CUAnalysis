@@ -413,11 +413,11 @@ void EventNtuple::Init(TTree *tree, bool debug)
       fChain->SetBranchAddress("GenTaus_Nu", &GenTaus_Nu, &b_GenTaus_Nu);
       fChain->SetBranchAddress("GenTops", &GenTops, &b_GenTops);
       fChain->SetBranchAddress("GenTopWeight", &GenTopWeight, &b_GenTopWeight);
-      if(fChain->GetBranch("globalTightHalo2016Filter"))
-         fChain->SetBranchAddress("globalTightHalo2016Filter", &globalTightHalo2016Filter, &b_globalTightHalo2016Filter);
-      else if(fChain->GetBranch("globalSuperTightHalo2016Filter"))
-         fChain->SetBranchAddress("globalSuperTightHalo2016Filter", &globalSuperTightHalo2016Filter, &b_globalSuperTightHalo2016Filter);
    }
+   if(fChain->GetBranch("globalTightHalo2016Filter"))
+      fChain->SetBranchAddress("globalTightHalo2016Filter", &globalTightHalo2016Filter, &b_globalTightHalo2016Filter);
+   else if(fChain->GetBranch("globalSuperTightHalo2016Filter"))
+      fChain->SetBranchAddress("globalSuperTightHalo2016Filter", &globalSuperTightHalo2016Filter, &b_globalSuperTightHalo2016Filter);
    fChain->SetBranchAddress("hasGenPromptPhoton", &hasGenPromptPhoton, &b_hasGenPromptPhoton);
    fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter, &b_HBHEIsoNoiseFilter);
    fChain->SetBranchAddress("HBHENoiseFilter", &HBHENoiseFilter, &b_HBHENoiseFilter);
