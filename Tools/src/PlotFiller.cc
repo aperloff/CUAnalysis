@@ -68,7 +68,7 @@ void PlotFiller::setMaximumEventsDEBUG(unsigned int maxEvts) {
    debug = true;
 }
 
-void PlotFiller::setLimitBranches(int lb) {
+void PlotFiller::setLimitBranches(DEFS::Ana::Type lb) {
    limitBranches = lb;
 }
 
@@ -92,7 +92,37 @@ void PlotFiller::run() {
       //c->SetCacheSize(10000000);
       //c->AddBranchToCache("*");
       
-      if(limitBranches > 0 ) {
+      if (limitBranches == DEFS::Ana::UNKNOWN) {
+         cout << "\tPlotFiller::run Unknown analysis type. Will not turn off any analysis to be safe." << endl;
+      }
+      else if (limitBranches == DEFS::Ana::HEMAnalysis) {
+         c->SetBranchStatus("*",1);
+      }
+      else if (limitBranches == DEFS::Ana::RA2bAnalysis) {
+         c->SetBranchStatus("*",1);
+      }
+      else if (limitBranches == DEFS::Ana::GenMETComparison) {
+         c->SetBranchStatus("*",0);
+         c->SetBranchStatus("GenMET",1);
+         c->SetBranchStatus("MET",1);
+         c->SetBranchStatus("METPhi",1);
+         c->SetBranchStatus("MHT",1);
+         c->SetBranchStatus("HT",1);
+         c->SetBranchStatus("NJets",1);
+         c->SetBranchStatus("Jets",1);
+         c->SetBranchStatus("Jets_muonEnergyFraction",1);
+         c->SetBranchStatus("BTagsDeepCSV",1);
+         c->SetBranchStatus("Electrons",1);
+         c->SetBranchStatus("Electrons_passIso",1);
+         c->SetBranchStatus("Muons",1);
+         c->SetBranchStatus("Muons_passIso",1);
+         c->SetBranchStatus("*Filter*",1);
+         c->SetBranchStatus("PFCaloMETRatio",1);
+         c->SetBranchStatus("JetID",1);
+         c->SetBranchStatus("TriggerNames",1);
+         c->SetBranchStatus("TriggerPass",1);
+      }
+      else {
          cout << "\tPlotFiller::run Normally we'd be turning off some branches here. Not today!" << endl;
       }
 

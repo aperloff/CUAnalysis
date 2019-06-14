@@ -44,7 +44,7 @@ public:
    void setCutFunction(bool (*userCutFunc_) (EventNtuple*, const PhysicsProcess*, Table&));
    void setProcessFunction(void (*userProcessFunc_) (EventNtuple*, const PhysicsProcess*));
    void setInitializeEventFunction(void (*userInitEventFunc_) (EventNtuple*, const PhysicsProcess*));
-   void setLimitBranches(int lb);
+   void setLimitBranches(DEFS::Ana::Type lb);
    
    // Debug functions
    void setMaximumEventsDEBUG(unsigned int maxEvts);
@@ -60,7 +60,7 @@ private:
    unsigned int numberOfEvents;
    unsigned int debugNumberOfEvents;
    bool debug;
-   int limitBranches;
+   DEFS::Ana::Type limitBranches;
    TBenchmark* sample_benchmark;
    TBenchmark* event_benchmark;
    TBenchmark* func_benchmark;
