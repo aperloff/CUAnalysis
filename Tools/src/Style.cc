@@ -103,6 +103,174 @@ void Style::fixOverlay() {
   gPad->RedrawAxis();
 }
 
+void Style::set_palette_style() {
+  const Int_t NRGBs = 5;
+  const Int_t NCont = 255;
+
+  Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+  Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+  Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+  Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+}
+
+void Style::set_deep_sea_palette() {
+  const Int_t nRGBs = 5;
+  const Int_t NCont = 255;
+
+  Double_t stops[nRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+  Double_t red[nRGBs]   = { 1.00, 0.09, 0.18, 0.09, 0.00 };
+  // Double_t green[nRGBs] = { 0.97, 0.68, 0.39, 0.02, 0.01 };
+  // Double_t blue[nRGBs]  = { 0.97, 0.79, 0.62, 0.39, 0.17 };
+  Double_t green[nRGBs] = { 1.00, 0.97, 0.57, 0.20, 0.10 };
+  Double_t blue[nRGBs]  = { 1.00, 0.97, 0.80, 0.57, 0.47 };
+  TColor::CreateGradientColorTable(nRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+}
+
+void Style::set_avocado_palette() {
+  const Int_t nRGBs = 9;
+  const Int_t NCont = 255;
+  Double_t stops[nRGBs] = { 0.0000, 0.1250, 0.2500, 0.3750, 0.5000, 0.6250, 0.7500, 0.8750, 1.0000};
+  Double_t red[nRGBs]   = { 0./255.,  4./255., 12./255.,  30./255.,  52./255., 101./255., 142./255., 190./255., 237./255.};
+  Double_t green[nRGBs] = { 0./255., 40./255., 86./255., 121./255., 140./255., 172./255., 187./255., 213./255., 240./255.};
+  Double_t blue[nRGBs]  = { 0./255.,  9./255., 14./255.,  18./255.,  21./255.,  23./255.,  27./255.,  35./255., 101./255.};
+  TColor::CreateGradientColorTable(nRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+}
+
+void Style::set_temperature_palette() {
+  const Int_t nRGBs = 10;
+  const Int_t NCont = 255;
+  Double_t stops[nRGBs] = { 0.0000, 0.1250, 0.2500, 0.3750, 0.5, 0.5625, 0.6250, 0.7500, 0.8750, 1.0000};
+  Double_t red[nRGBs]   = {  30./255.,  55./255., 103./255., 147./255., 255./255., 255./255., 203./255., 188./255., 151./255., 105./255.};
+  Double_t green[nRGBs] = {   0./255.,  65./255., 138./255., 182./255., 255./255., 255./255., 175./255., 121./255.,  53./255.,   9./255.};
+  Double_t blue[nRGBs]  = { 191./255., 202./255., 212./255., 208./255., 255./255., 255./255., 140./255.,  97./255.,  57./255.,  30./255.};
+  TColor::CreateGradientColorTable(nRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+}
+
+void Style::set_jbradmil_style(TH1 * h, const TString& p, const bool dashes) {
+  if (p.Contains("t1bbbb")) {
+    h->SetFillColor (2);
+    h->SetMarkerColor(2);
+  } else if(p.Contains("t1tttt")) {
+    h->SetFillColor(6);
+    h->SetMarkerColor(6);
+  }  else if (p == "data_obs") {
+    h->SetMarkerSize(1);
+    h->SetLineWidth(1);
+    h->SetMarkerStyle(20);
+    h->SetLineColor(1);
+  } else if (p == "sig_obs") {
+    h->SetMarkerSize(0.75);
+    h->SetLineWidth(1);
+    h->SetMarkerStyle(20);
+    h->SetLineColor(1);
+  } else {
+    if (dashes) h->SetFillStyle(3135);
+    h->SetLineColor(kBlack);
+    h->SetLineWidth(2);
+    if (p == "znn") {
+      h->SetFillColor(1002);
+      h->SetMarkerColor(1002);
+    } else if (p == "qcd") {
+      h->SetFillColor (2001);
+      h->SetMarkerColor(2001);
+    } else if (p == "ttbar") {
+      h->SetFillColor(1000);
+      h->SetMarkerColor(1000);
+    } else if (p == "wjets") {
+      h->SetFillColor (1004);
+      h->SetMarkerColor(1004);
+    } else if (p == "single_top") {
+      h->SetFillColor (1005);
+      h->SetMarkerColor(1005);
+    } else if (p == "other") {
+      h->SetFillColor (1003);
+      h->SetMarkerColor(1003);
+    } else if (p== "bg") {
+      h->SetFillColor(kAzure+1);
+      h->SetMarkerColor(kAzure+1);
+    } else if (p== "signal") {
+      h->SetFillColor(1008);
+      h->SetMarkerColor(1008);
+    } else if (p== "pred") {
+      h->SetFillColor(1007);
+      h->SetMarkerColor(1007);
+    }
+  }
+  return;
+}
+
+void Style::set_jbradmil_style_lite_(TH1 * h, const TString& p, const bool dashes) {
+  if (p.Contains("t1bbbb")) {
+    h->SetFillColor (2);
+    h->SetMarkerColor(2);
+  } else if(p.Contains("t1tttt")) {
+    h->SetFillColor(6);
+    h->SetMarkerColor(6);
+  }  else if (p == "data_obs") {
+    h->SetMarkerSize(1);
+    h->SetLineWidth(1);
+    h->SetMarkerStyle(20);
+    h->SetLineColor(1);
+  } else {
+    if (dashes) h->SetFillStyle(3135);
+    h->SetLineColor(kBlack);
+    h->SetLineWidth(2);
+    if (p == "znn") {
+      h->SetFillColor(2002);
+      h->SetMarkerColor(2002);
+    } else if (p == "qcd") {
+      h->SetFillColor (2001);
+      h->SetMarkerColor(2001);
+    } else if (p == "ttbar") {
+      h->SetFillColor(2000);
+      h->SetMarkerColor(2000);
+    } else if (p == "wjets") {
+      h->SetFillColor (2004);
+      h->SetMarkerColor(2004);
+    } else if (p == "single_top") {
+      h->SetFillColor (2008);
+      h->SetMarkerColor(2008);
+    } else if (p == "other") {
+      h->SetFillColor (2003);
+      h->SetMarkerColor(2003);
+    } else if (p== "bg") {
+      h->SetFillColor(kAzure+1);
+      h->SetMarkerColor(kAzure+1);
+    } else if (p== "signal") {
+      h->SetFillColor(1008);
+      h->SetMarkerColor(1008);
+    } else if (p== "pred") {
+      h->SetFillColor(1007);
+      h->SetMarkerColor(1007);
+    }
+    else if (p== "lost_lep") {
+      h->SetFillColor(2006);
+      h->SetMarkerColor(2007);
+    }
+    else if (p== "had_tau") {
+      h->SetFillColor(2007);
+      h->SetMarkerColor(2007);
+    }
+  }
+  return;
+}
+
+void Style::set_jbradmil_style(TLegend* leg, float text_size, bool transparent) {
+  if (transparent) leg->SetFillStyle(0);
+  leg->SetFillStyle(0);
+  leg->SetLineColor(0);
+  leg->SetShadowColor(0);
+  leg->SetTextFont(62);
+  leg->SetTextSize(text_size);
+  leg->SetBorderSize(0);
+  return;
+}
+
 void Style::setTDRStyle() {
   TStyle *tdrStyle = new TStyle("tdrStyle","Style for P-TDR");
 

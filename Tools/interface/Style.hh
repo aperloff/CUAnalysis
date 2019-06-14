@@ -16,6 +16,8 @@
 #include "THStack.h"
 #include "TPaveText.h"
 #include "TString.h"
+#include "TLine.h"
+#include "TColor.h"
 
 #include <iostream>
 #include <string>
@@ -24,6 +26,28 @@
 using std::cout;
 using std::endl;
 using std::string;
+
+
+TColor uscb_blue(5000, 1/255.,57/255.,166/255.); 
+TColor penn_red(5002, 149/255.,0/255.,26/255.); 
+TColor uo_green(5004, 0/255.,79/255.,39/255.);
+
+TColor ucsb_blue_lite(2000, 13/255.,67/255.,255/255.);
+TColor carrot(2003, 230/255., 91/255., 20/255.);
+
+TColor uo_green_lite(2004, 23/255.,160/255.,74/255.);
+TColor tcu_purple_lite(2005, 86/255.,69/255.,203/255.);
+
+TColor qcd_uscb_gold(2001, 255/255.,200/255.,47/255);
+TColor znn_penn_red(2002, 255/255.,0/255.,43/255.);
+TColor lost_lep_dusk_blue(2006, 105/255.,166/255., 202/255.);
+TColor had_tau_grayed_jade(2007, 133/255.,189/255., 164/255.);
+TColor heather(2008, 133/255.,99/255., 163/255.);
+TColor c_iso(3002, 201/255., 191/255., 138/255.);
+
+TColor uw_gold(3003, 145/255., 123/255., 76/255.);
+TColor pretty_purple(3004, 185/255., 141/255., 226/255.);
+TColor rose_quartz(3005, 240/255., 187/255., 183/255.);
 
 class Style {
 public:
@@ -50,6 +74,15 @@ public:
 
   void fixOverlay();
 
+  void Pal1() {gStyle->SetPalette(51);}
+  void Pal2() {gStyle->SetPalette(53);}
+  void set_palette_style();
+  void set_deep_sea_palette();
+  void set_avocado_palette();
+  void set_temperature_palette();
+  void set_jbradmil_style(TH1 * h, const TString& p, const bool dashes=false);
+  void set_jbradmil_style_lite_(TH1 * h, const TString& p, const bool dashes=false);
+  void set_jbradmil_style(TLegend* leg, float text_size=0.045, bool transparent=false);
   void setTDRStyle();
 
   void CMS_lumi( TPad* pad, int iPeriod=3, int iPosX=10, string options = "" );
