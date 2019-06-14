@@ -15,7 +15,7 @@ std::string DefaultValues::getConfigPath(DEFS::Ana::Type analysis) {
     assert(tmp!=NULL);
   }
   
-  return basePath + "/src/CUAnalysis/ConfigFiles/Run2ProductionV15a/";
+  return basePath + "/src/CUAnalysis/ConfigFiles/Run2ProductionV17/";
 
 }// getConfigPath
 
@@ -189,6 +189,25 @@ std::vector < PhysicsProcess * > DefaultValues::getProcessesRA2b(DEFS::JetBin je
    return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType, DEFS::Ana::RA2bAnalysis);
 
 }//getProcessesRA2b
+
+// ----------------------------------------------------------------------------
+std::vector < PhysicsProcess * > DefaultValues::getProcessesGenMET(DEFS::JetBin jetBin,
+                                                                   DEFS::TagCat tagcat, 
+                                                                   bool includeData,
+                                                                   bool includeSystematics,
+                                                                   bool forPlots,
+                                                                   DEFS::NtupleType ntupleType){
+
+  std::vector<DEFS::PhysicsProcess::Type> procs;
+  procs.push_back(DEFS::PhysicsProcess::Fall17_TTJets_DiLept_genMET_150);
+  procs.push_back(DEFS::PhysicsProcess::Fall17_TTJets_SingleLeptFromT_genMET_150);
+  procs.push_back(DEFS::PhysicsProcess::Fall17_TTJets_SingleLeptFromTbar_genMET_150);
+  procs.push_back(DEFS::PhysicsProcess::Autumn18_TTJets_DiLept_genMET_80);
+  procs.push_back(DEFS::PhysicsProcess::Autumn18_TTJets_SingleLeptFromT_genMET_80);
+  procs.push_back(DEFS::PhysicsProcess::Autumn18_TTJets_SingleLeptFromTbar_genMET_80);
+  return getProcesses(procs, jetBin, tagcat, forPlots, ntupleType, DEFS::Ana::RA2bAnalysis);
+
+}//getProcessesGenMETComparison
 
 // ----------------------------------------------------------------------------
 std::vector < PhysicsProcess * > DefaultValues::getProcessesPhotonFragmentation(DEFS::JetBin jetBin,

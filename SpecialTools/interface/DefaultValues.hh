@@ -85,6 +85,13 @@ namespace DefaultValues {
                                                       bool forPlots,
                                                       DEFS::NtupleType ntupleType);
 
+    std::vector < PhysicsProcess * > getProcessesGenMET(DEFS::JetBin,
+                                                        DEFS::TagCat,
+                                                        bool includeData,
+                                                        bool includeSystematics,
+                                                        bool forPlots,
+                                                        DEFS::NtupleType ntupleType);
+
     std::vector < PhysicsProcess * > getProcessesPhotonFragmentation(DEFS::JetBin,
                                                                      DEFS::TagCat,
                                                                      bool includeData,
