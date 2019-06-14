@@ -33,7 +33,7 @@ chain (new TChain(treeName.c_str()))
     TFile* file = nullptr;
     int file_count(0);
     std::string currentDir = gDirectory->GetPathStatic();
-    if (fileName.find("*")==std::string::npos && fileName.find("root://cmseos.fnal.gov/")!=std::string::npos) {
+    if (fileName.find("*")==std::string::npos && fileName.find("?")==std::string::npos && fileName.find("root://cmseos.fnal.gov/")!=std::string::npos) {
         if(debug) std::cout << "\tAdding " << fileName << std::endl;
         file_count = chain->Add(fileName.c_str());
     }
@@ -49,10 +49,11 @@ chain (new TChain(treeName.c_str()))
 
             XrdCl::URL url(url_string);
             XrdCl::FileSystem fs(url);
+            if(debug) std::cout << "\tLooking in folder " << input << std::endl;
             fs.DirList(input,flags,response);
             for(auto iresp=response->Begin(); iresp!=response->End(); iresp++) {
                 if((*iresp)->GetName().find(".root")!=std::string::npos && utilities::match(just_file.c_str(),(*iresp)->GetName().c_str())) {
-                    if(debug) std::cout << "\tAdding " << url_string << input << (*iresp)->GetName() << std::endl;
+                    if(debug) std::cout << "\t\tAdding " << url_string << input << (*iresp)->GetName() << std::endl;
                     file_count = chain->Add((url_string+input+(*iresp)->GetName()).c_str());
                 }
             }
