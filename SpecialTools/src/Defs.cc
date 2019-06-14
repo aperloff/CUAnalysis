@@ -17,6 +17,7 @@ namespace DEFS {
       //the returning string
       if      (type == RA2bAnalysis)        return "RA2/b Analysis";
       else if (type == HEMAnalysis)         return "HEM 15/16 Analysis";
+      else if (type == GenMETComparison)    return "GenMET Comparison";
       else if (type == DataComparison)      return "DataComparison";
       else if (type == PhotonFragmentation) return "PhotonFragmentation";
       else if (type == UNKNOWN)             return "UNKNOWN Analysis";
@@ -30,6 +31,7 @@ namespace DEFS {
     Type getAnaType(std::string str) {
        if     (str == "RA2bAnalysis")        return DEFS::Ana::RA2bAnalysis;
        else if(str == "HEMAnalysis")         return DEFS::Ana::HEMAnalysis;
+       else if(str == "GenMETComparison")    return DEFS::Ana::GenMETComparison;
        else if(str == "DataComparison")      return DEFS::Ana::DataComparison;
        else if(str == "PhotonFragmentation") return DEFS::Ana::PhotonFragmentation;
        else if(str == "UNKNOWN")             return DEFS::Ana::UNKNOWN;
@@ -46,39 +48,45 @@ namespace DEFS {
     //---------------------------------------------------------------------------
     DEFS::PhysicsProcessType getProcessType(std::string str){
 
-      if     (str == "Data_EGamma")                               return DEFS::PhysicsProcess::Data_EGamma;
-      else if(str == "Data_JetHT")                                return DEFS::PhysicsProcess::Data_JetHT;
-      else if(str == "Data_MET")                                  return DEFS::PhysicsProcess::Data_MET;
-      else if(str == "Data_SingleMuon")                           return DEFS::PhysicsProcess::Data_SingleMuon;
-      else if(str == "Data_HEMiss_EGamma")                        return DEFS::PhysicsProcess::Data_HEMiss_EGamma;
-      else if(str == "Data_HEMiss_JetHT")                         return DEFS::PhysicsProcess::Data_HEMiss_JetHT;
-      else if(str == "Data_HEMiss_MET")                           return DEFS::PhysicsProcess::Data_HEMiss_MET;
-      else if(str == "Data_HEMiss_SingleMuon")                    return DEFS::PhysicsProcess::Data_HEMiss_SingleMuon;
-      else if(str == "RelVal_QCD_FlatPt_15_3000HS")               return DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS;
-      else if(str == "RelVal_QCD_Pt_600_800")                     return DEFS::PhysicsProcess::RelVal_QCD_Pt_600_800;
-      else if(str == "RelVal_QCD_Pt_80_120")                      return DEFS::PhysicsProcess::RelVal_QCD_Pt_80_120;
-      else if(str == "RelVal_SMS_T1tttt_mGl1500_mLSP100")         return DEFS::PhysicsProcess::RelVal_SMS_T1tttt_mGl1500_mLSP100;
-      else if(str == "RelVal_TTbar")                              return DEFS::PhysicsProcess::RelVal_TTbar;
-      else if(str == "RelValHEMiss_QCD_FlatPt_15_3000HS")         return DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS;
-      else if(str == "RelValHEMiss_QCD_Pt_600_800")               return DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_600_800;
-      else if(str == "RelValHEMiss_QCD_Pt_80_120")                return DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_80_120;
-      else if(str == "RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100")   return DEFS::PhysicsProcess::RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100;
-      else if(str == "RelValHEMiss_TTbar")                        return DEFS::PhysicsProcess::RelValHEMiss_TTbar;
-      else if(str == "GJets_HT-100to200")                         return DEFS::PhysicsProcess::GJets_HT_100to200;
-      else if(str == "GJets_HT-200to400")                         return DEFS::PhysicsProcess::GJets_HT_200to400;
-      else if(str == "GJets_HT-400to600")                         return DEFS::PhysicsProcess::GJets_HT_400to600;
-      else if(str == "GJets_HT-600toInf")                         return DEFS::PhysicsProcess::GJets_HT_600toInf;
-      else if(str == "QCD_HT-200to300")                           return DEFS::PhysicsProcess::QCD_HT_200to300;
-      else if(str == "QCD_HT-300to500")                           return DEFS::PhysicsProcess::QCD_HT_300to500;
-      else if(str == "QCD_HT-500to700")                           return DEFS::PhysicsProcess::QCD_HT_500to700;
-      else if(str == "QCD_HT-700to1000")                          return DEFS::PhysicsProcess::QCD_HT_700to1000;
-      else if(str == "QCD_HT-1000to1500")                         return DEFS::PhysicsProcess::QCD_HT_1000to1500;
-      else if(str == "QCD_HT-1500to2000")                         return DEFS::PhysicsProcess::QCD_HT_1500to2000;
-      else if(str == "QCD_HT-2000toInf")                          return DEFS::PhysicsProcess::QCD_HT_2000toInf;
-      else if(str == "GJets_DR-0p4_HT-100to200")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_100to200;
-      else if(str == "GJets_DR-0p4_HT-200to400")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_200to400;
-      else if(str == "GJets_DR-0p4_HT-400to600")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_400to600;
-      else if(str == "GJets_DR-0p4_HT-600toInf")                  return DEFS::PhysicsProcess::GJets_DR_0p4_HT_600toInf;
+      if     (str == "Data_EGamma")                                  return DEFS::PhysicsProcess::Data_EGamma;
+      else if(str == "Data_JetHT")                                   return DEFS::PhysicsProcess::Data_JetHT;
+      else if(str == "Data_MET")                                     return DEFS::PhysicsProcess::Data_MET;
+      else if(str == "Data_SingleMuon")                              return DEFS::PhysicsProcess::Data_SingleMuon;
+      else if(str == "Data_HEMiss_EGamma")                           return DEFS::PhysicsProcess::Data_HEMiss_EGamma;
+      else if(str == "Data_HEMiss_JetHT")                            return DEFS::PhysicsProcess::Data_HEMiss_JetHT;
+      else if(str == "Data_HEMiss_MET")                              return DEFS::PhysicsProcess::Data_HEMiss_MET;
+      else if(str == "Data_HEMiss_SingleMuon")                       return DEFS::PhysicsProcess::Data_HEMiss_SingleMuon;
+      else if(str == "RelVal_QCD_FlatPt_15_3000HS")                  return DEFS::PhysicsProcess::RelVal_QCD_FlatPt_15_3000HS;
+      else if(str == "RelVal_QCD_Pt_600_800")                        return DEFS::PhysicsProcess::RelVal_QCD_Pt_600_800;
+      else if(str == "RelVal_QCD_Pt_80_120")                         return DEFS::PhysicsProcess::RelVal_QCD_Pt_80_120;
+      else if(str == "RelVal_SMS_T1tttt_mGl1500_mLSP100")            return DEFS::PhysicsProcess::RelVal_SMS_T1tttt_mGl1500_mLSP100;
+      else if(str == "RelVal_TTbar")                                 return DEFS::PhysicsProcess::RelVal_TTbar;
+      else if(str == "RelValHEMiss_QCD_FlatPt_15_3000HS")            return DEFS::PhysicsProcess::RelValHEMiss_QCD_FlatPt_15_3000HS;
+      else if(str == "RelValHEMiss_QCD_Pt_600_800")                  return DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_600_800;
+      else if(str == "RelValHEMiss_QCD_Pt_80_120")                   return DEFS::PhysicsProcess::RelValHEMiss_QCD_Pt_80_120;
+      else if(str == "RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100")      return DEFS::PhysicsProcess::RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100;
+      else if(str == "RelValHEMiss_TTbar")                           return DEFS::PhysicsProcess::RelValHEMiss_TTbar;
+      else if(str == "GJets_HT-100to200")                            return DEFS::PhysicsProcess::GJets_HT_100to200;
+      else if(str == "GJets_HT-200to400")                            return DEFS::PhysicsProcess::GJets_HT_200to400;
+      else if(str == "GJets_HT-400to600")                            return DEFS::PhysicsProcess::GJets_HT_400to600;
+      else if(str == "GJets_HT-600toInf")                            return DEFS::PhysicsProcess::GJets_HT_600toInf;
+      else if(str == "QCD_HT-200to300")                              return DEFS::PhysicsProcess::QCD_HT_200to300;
+      else if(str == "QCD_HT-300to500")                              return DEFS::PhysicsProcess::QCD_HT_300to500;
+      else if(str == "QCD_HT-500to700")                              return DEFS::PhysicsProcess::QCD_HT_500to700;
+      else if(str == "QCD_HT-700to1000")                             return DEFS::PhysicsProcess::QCD_HT_700to1000;
+      else if(str == "QCD_HT-1000to1500")                            return DEFS::PhysicsProcess::QCD_HT_1000to1500;
+      else if(str == "QCD_HT-1500to2000")                            return DEFS::PhysicsProcess::QCD_HT_1500to2000;
+      else if(str == "QCD_HT-2000toInf")                             return DEFS::PhysicsProcess::QCD_HT_2000toInf;
+      else if(str == "GJets_DR-0p4_HT-100to200")                     return DEFS::PhysicsProcess::GJets_DR_0p4_HT_100to200;
+      else if(str == "GJets_DR-0p4_HT-200to400")                     return DEFS::PhysicsProcess::GJets_DR_0p4_HT_200to400;
+      else if(str == "GJets_DR-0p4_HT-400to600")                     return DEFS::PhysicsProcess::GJets_DR_0p4_HT_400to600;
+      else if(str == "GJets_DR-0p4_HT-600toInf")                     return DEFS::PhysicsProcess::GJets_DR_0p4_HT_600toInf;
+      else if(str == "Fall17_TTJets_DiLept_genMET_150")              return DEFS::PhysicsProcess::Fall17_TTJets_DiLept_genMET_150;
+      else if(str == "Fall17_TTJets_SingleLeptFromT_genMET_150")     return DEFS::PhysicsProcess::Fall17_TTJets_SingleLeptFromT_genMET_150;
+      else if(str == "Fall17_TTJets_SingleLeptFromTbar_genMET_150")  return DEFS::PhysicsProcess::Fall17_TTJets_SingleLeptFromTbar_genMET_150;
+      else if(str == "Autumn18_TTJets_DiLept_genMET_80")             return DEFS::PhysicsProcess::Autumn18_TTJets_DiLept_genMET_80;
+      else if(str == "Autumn18_TTJets_SingleLeptFromT_genMET_80")    return DEFS::PhysicsProcess::Autumn18_TTJets_SingleLeptFromT_genMET_80;
+      else if(str == "Autumn18_TTJets_SingleLeptFromTbar_genMET_80") return DEFS::PhysicsProcess::Autumn18_TTJets_SingleLeptFromTbar_genMET_80;
 
       else if(str == "UNKNOWN")              return  DEFS::PhysicsProcess::UNKNOWN;
  
@@ -91,39 +99,45 @@ namespace DEFS {
     //---------------------------------------------------------------------------
     string getTypeString(Type type){
 
-      if      (type == Data_EGamma)                               return string("Data_EGamma");
-      else if (type == Data_JetHT)                                return string("Data_JetHT");
-      else if (type == Data_MET)                                  return string("Data_MET");
-      else if (type == Data_SingleMuon)                           return string("Data_SingleMuon");
-      else if (type == Data_HEMiss_EGamma)                        return string("Data_HEMiss_EGamma");
-      else if (type == Data_HEMiss_JetHT)                         return string("Data_HEMiss_JetHT");
-      else if (type == Data_HEMiss_MET)                           return string("Data_HEMiss_MET");
-      else if (type == Data_HEMiss_SingleMuon)                    return string("Data_HEMiss_SingleMuon");
-      else if (type == RelVal_QCD_FlatPt_15_3000HS)               return string("RelVal_QCD_FlatPt_15_3000HS");
-      else if (type == RelVal_QCD_Pt_600_800)                     return string("RelVal_QCD_Pt_600_800");
-      else if (type == RelVal_QCD_Pt_80_120)                      return string("RelVal_QCD_Pt_80_120");
-      else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100)         return string("RelVal_SMS_T1tttt_mGl1500_mLSP100");
-      else if (type == RelVal_TTbar)                              return string("RelVal_TTbar");
-      else if (type == RelValHEMiss_QCD_FlatPt_15_3000HS)         return string("RelValHEMiss_QCD_FlatPt_15_3000HS");
-      else if (type == RelValHEMiss_QCD_Pt_600_800)               return string("RelValHEMiss_QCD_Pt_600_800");
-      else if (type == RelValHEMiss_QCD_Pt_80_120)                return string("RelValHEMiss_QCD_Pt_80_120");
-      else if (type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100)   return string("RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100");
-      else if (type == RelValHEMiss_TTbar)                        return string("RelValHEMiss_TTbar");
-      else if (type == GJets_HT_100to200)                         return string("GJets_HT-100to200");
-      else if (type == GJets_HT_200to400)                         return string("GJets_HT-200to400");
-      else if (type == GJets_HT_400to600)                         return string("GJets_HT-400to600");
-      else if (type == GJets_HT_600toInf)                         return string("GJets_HT-600toInf");
-      else if (type == QCD_HT_200to300)                           return string("QCD_HT-200to300");
-      else if (type == QCD_HT_300to500)                           return string("QCD_HT-300to500");
-      else if (type == QCD_HT_500to700)                           return string("QCD_HT-500to700");
-      else if (type == QCD_HT_700to1000)                          return string("QCD_HT-700to1000");
-      else if (type == QCD_HT_1000to1500)                         return string("QCD_HT-1000to1500");
-      else if (type == QCD_HT_1500to2000)                         return string("QCD_HT-1500to2000");
-      else if (type == QCD_HT_2000toInf)                          return string("QCD_HT-2000toInf");
-      else if (type == GJets_DR_0p4_HT_100to200)                  return string("GJets_DR-0p4_HT-100to200");
-      else if (type == GJets_DR_0p4_HT_200to400)                  return string("GJets_DR-0p4_HT-200to400");
-      else if (type == GJets_DR_0p4_HT_400to600)                  return string("GJets_DR-0p4_HT-400to600");
-      else if (type == GJets_DR_0p4_HT_600toInf)                  return string("GJets_DR-0p4_HT-600toInf");
+      if      (type == Data_EGamma)                                  return string("Data_EGamma");
+      else if (type == Data_JetHT)                                   return string("Data_JetHT");
+      else if (type == Data_MET)                                     return string("Data_MET");
+      else if (type == Data_SingleMuon)                              return string("Data_SingleMuon");
+      else if (type == Data_HEMiss_EGamma)                           return string("Data_HEMiss_EGamma");
+      else if (type == Data_HEMiss_JetHT)                            return string("Data_HEMiss_JetHT");
+      else if (type == Data_HEMiss_MET)                              return string("Data_HEMiss_MET");
+      else if (type == Data_HEMiss_SingleMuon)                       return string("Data_HEMiss_SingleMuon");
+      else if (type == RelVal_QCD_FlatPt_15_3000HS)                  return string("RelVal_QCD_FlatPt_15_3000HS");
+      else if (type == RelVal_QCD_Pt_600_800)                        return string("RelVal_QCD_Pt_600_800");
+      else if (type == RelVal_QCD_Pt_80_120)                         return string("RelVal_QCD_Pt_80_120");
+      else if (type == RelVal_SMS_T1tttt_mGl1500_mLSP100)            return string("RelVal_SMS_T1tttt_mGl1500_mLSP100");
+      else if (type == RelVal_TTbar)                                 return string("RelVal_TTbar");
+      else if (type == RelValHEMiss_QCD_FlatPt_15_3000HS)            return string("RelValHEMiss_QCD_FlatPt_15_3000HS");
+      else if (type == RelValHEMiss_QCD_Pt_600_800)                  return string("RelValHEMiss_QCD_Pt_600_800");
+      else if (type == RelValHEMiss_QCD_Pt_80_120)                   return string("RelValHEMiss_QCD_Pt_80_120");
+      else if (type == RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100)      return string("RelValHEMiss_SMS_T1tttt_mGl1500_mLSP100");
+      else if (type == RelValHEMiss_TTbar)                           return string("RelValHEMiss_TTbar");
+      else if (type == GJets_HT_100to200)                            return string("GJets_HT-100to200");
+      else if (type == GJets_HT_200to400)                            return string("GJets_HT-200to400");
+      else if (type == GJets_HT_400to600)                            return string("GJets_HT-400to600");
+      else if (type == GJets_HT_600toInf)                            return string("GJets_HT-600toInf");
+      else if (type == QCD_HT_200to300)                              return string("QCD_HT-200to300");
+      else if (type == QCD_HT_300to500)                              return string("QCD_HT-300to500");
+      else if (type == QCD_HT_500to700)                              return string("QCD_HT-500to700");
+      else if (type == QCD_HT_700to1000)                             return string("QCD_HT-700to1000");
+      else if (type == QCD_HT_1000to1500)                            return string("QCD_HT-1000to1500");
+      else if (type == QCD_HT_1500to2000)                            return string("QCD_HT-1500to2000");
+      else if (type == QCD_HT_2000toInf)                             return string("QCD_HT-2000toInf");
+      else if (type == GJets_DR_0p4_HT_100to200)                     return string("GJets_DR-0p4_HT-100to200");
+      else if (type == GJets_DR_0p4_HT_200to400)                     return string("GJets_DR-0p4_HT-200to400");
+      else if (type == GJets_DR_0p4_HT_400to600)                     return string("GJets_DR-0p4_HT-400to600");
+      else if (type == GJets_DR_0p4_HT_600toInf)                     return string("GJets_DR-0p4_HT-600toInf");
+      else if (type == Fall17_TTJets_DiLept_genMET_150)              return string("Fall17_TTJets_DiLept_genMET_150");
+      else if (type == Fall17_TTJets_SingleLeptFromT_genMET_150)     return string("Fall17_TTJets_SingleLeptFromT_genMET_150");
+      else if (type == Fall17_TTJets_SingleLeptFromTbar_genMET_150)  return string("Fall17_TTJets_SingleLeptFromTbar_genMET_150");
+      else if (type == Autumn18_TTJets_DiLept_genMET_80)             return string("Autumn18_TTJets_DiLept_genMET_80");
+      else if (type == Autumn18_TTJets_SingleLeptFromT_genMET_80)    return string("Autumn18_TTJets_SingleLeptFromT_genMET_80");
+      else if (type == Autumn18_TTJets_SingleLeptFromTbar_genMET_80) return string("Autumn18_TTJets_SingleLeptFromTbar_genMET_80");
 
       else if (type == UNKNOWN)              return string("UNKNOWN");
 
@@ -171,6 +185,10 @@ namespace DEFS {
           return string("QCD");
        else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf)
           return string("GJets_DR-0p4");
+       else if (type == Fall17_TTJets_DiLept_genMET_150 || type == Fall17_TTJets_SingleLeptFromT_genMET_150 || type == Fall17_TTJets_SingleLeptFromTbar_genMET_150)
+          return string("Fall17_TTJets_genMET_150");
+       else if (type == Autumn18_TTJets_DiLept_genMET_80 || type == Autumn18_TTJets_SingleLeptFromT_genMET_80 || type == Autumn18_TTJets_SingleLeptFromTbar_genMET_80)
+          return string("Autumn18_TTJets_genMET_80");
        else
           return getTypeString(type);
     }//getTypeTitle
@@ -195,6 +213,8 @@ namespace DEFS {
        else if (type == QCD_HT_200to300 || type == QCD_HT_300to500 || type == QCD_HT_500to700 || type == QCD_HT_700to1000 ||
                 type == QCD_HT_1000to1500 || type == QCD_HT_1500to2000 || type == QCD_HT_2000toInf) return kBlack;
        else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf) return kBlack;
+       else if (type == Fall17_TTJets_DiLept_genMET_150 || type == Fall17_TTJets_SingleLeptFromT_genMET_150 || type == Fall17_TTJets_SingleLeptFromTbar_genMET_150) return kBlue;
+       else if (type == Autumn18_TTJets_DiLept_genMET_80 || type == Autumn18_TTJets_SingleLeptFromT_genMET_80 || type == Autumn18_TTJets_SingleLeptFromTbar_genMET_80) return kRed;
        else{
           cout << "WARNING Plotter::GetProcessColor() Unknown process name=|"<<getTypeString(type)
                <<"|. Returning process color as kBlack." << endl;
@@ -226,6 +246,8 @@ namespace DEFS {
        else if (type == QCD_HT_200to300 || type == QCD_HT_300to500 || type == QCD_HT_500to700 || type == QCD_HT_700to1000 ||
                 type == QCD_HT_1000to1500 || type == QCD_HT_1500to2000 || type == QCD_HT_2000toInf) return kFullCircle;
        else if (type == GJets_DR_0p4_HT_100to200 || type == GJets_DR_0p4_HT_200to400 || type == GJets_DR_0p4_HT_400to600 || type == GJets_DR_0p4_HT_600toInf) return kFullCircle;
+       else if (type == Fall17_TTJets_DiLept_genMET_150 || type == Fall17_TTJets_SingleLeptFromT_genMET_150 || type == Fall17_TTJets_SingleLeptFromTbar_genMET_150) return kFullCircle;
+       else if (type == Autumn18_TTJets_DiLept_genMET_80 || type == Autumn18_TTJets_SingleLeptFromT_genMET_80 || type == Autumn18_TTJets_SingleLeptFromTbar_genMET_80) return kOpenCircle;
        else{
           cout << "WARNING Plotter::GetProcessColor() Unknown process name=|"<<getTypeString(type)
                <<"|. Returning process marker as kFullCircle." << endl;

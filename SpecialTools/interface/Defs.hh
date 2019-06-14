@@ -26,6 +26,7 @@ namespace DEFS{
     enum Type{
       RA2bAnalysis,
       HEMAnalysis,
+      GenMETComparison,
       DataComparison,
       PhotonFragmentation,
       UNKNOWN
@@ -51,7 +52,8 @@ namespace DEFS{
                GJets_HT_100to200, GJets_HT_200to400, GJets_HT_400to600, GJets_HT_600toInf,
                QCD_HT_200to300, QCD_HT_300to500, QCD_HT_500to700, QCD_HT_700to1000, QCD_HT_1000to1500, QCD_HT_1500to2000, QCD_HT_2000toInf,
                GJets_DR_0p4_HT_100to200, GJets_DR_0p4_HT_200to400, GJets_DR_0p4_HT_400to600, GJets_DR_0p4_HT_600toInf,
-
+               Fall17_TTJets_DiLept_genMET_150, Fall17_TTJets_SingleLeptFromT_genMET_150, Fall17_TTJets_SingleLeptFromTbar_genMET_150,
+               Autumn18_TTJets_DiLept_genMET_80, Autumn18_TTJets_SingleLeptFromT_genMET_80, Autumn18_TTJets_SingleLeptFromTbar_genMET_80,
                UNKNOWN};
 
     // A routine that returns the type given a string 
