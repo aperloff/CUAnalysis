@@ -1,0 +1,16 @@
+# This table holds the absolute location of the files for the different processes.
+# the process BasePath contains the base path to be appended to all the processes
+CellClass=TableCellText
+
+Process											|   FilePath_EventNtuple
+BasePath										|   root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/
+Data_EGamma										|   Run2018*-PromptReco-v*.EGamma_*_RA2AnalysisTree.root
+Data_JetHT										|   Run2018*-PromptReco-v*.JetHT_*_RA2AnalysisTree.root
+Data_MET										|   Run2018*-PromptReco-v*.MET_*_RA2AnalysisTree.root
+Data_SingleMuon									|   Run2018*-PromptReco-v*.SingleMuon_*_RA2AnalysisTree.root
+Fall17_TTJets_DiLept_genMET_150					|	Fall17.TTJets_DiLept_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
+Fall17_TTJets_SingleLeptFromT_genMET_150		|	Fall17.TTJets_SingleLeptFromT_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
+Fall17_TTJets_SingleLeptFromTbar_genMET_150		|	Fall17.TTJets_SingleLeptFromTbar_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
+Autumn18_TTJets_DiLept_genMET_80				|	Autumn18.TTJets_DiLept_genMET-80_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
+Autumn18_TTJets_SingleLeptFromT_genMET_80		|	Autumn18.TTJets_SingleLeptFromT_genMET-80_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
+Autumn18_TTJets_SingleLeptFromTbar_genMET_80	|	Autumn18.TTJets_SingleLeptFromTbar_genMET-80_TuneCP5_13TeV-madgraphMLM-pythia8_*_RA2AnalysisTree.root
