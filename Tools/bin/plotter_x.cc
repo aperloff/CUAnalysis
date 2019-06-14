@@ -51,7 +51,6 @@ namespace UserFunctions
     DEFS::JetBin jetBin;
     DEFS::TagCat tagCat;
     DEFS::NtupleType ntupleType;
-    int limitBranches = 0;
     PUreweight* puweight;
     bool doPUreweight;
     TString pileupSystematic;
@@ -94,46 +93,53 @@ void UserFunctions::fillPlots(PlotFiller::MapOfPlots &  plots, TString processNa
     if(UserFunctions::doBenchmarks)
         UserFunctions::func_benchmark->Start("fillPlots");
 
-    // Global distributions
-    plots[leptonCat]["MET"]->Fill(ntuple->MET,weight);
-    plots[leptonCat]["MHT"]->Fill(ntuple->MHT,weight);
-    plots[leptonCat]["HT"]->Fill(ntuple->HT,weight);
-    plots[leptonCat]["NJets"]->Fill(ntuple->NJets,weight);
-    plots[leptonCat]["NBTags"]->Fill(ntuple->BTagsDeepCSV,weight);
+    if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis || UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
+       // Global distributions
+       plots[leptonCat]["MET"]->Fill(ntuple->MET,weight);
+       plots[leptonCat]["MHT"]->Fill(ntuple->MHT,weight);
+       plots[leptonCat]["HT"]->Fill(ntuple->HT,weight);
+       plots[leptonCat]["NJets"]->Fill(ntuple->NJets,weight);
+       plots[leptonCat]["NBTags"]->Fill(ntuple->BTagsDeepCSV,weight);
+       
+       // Distributions for leptons (inclusive)
+       for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
+          if(ntuple->Electrons_passIso->at(ielectron)) {
+             plots[leptonCat]["ElectronPt"]->Fill(ntuple->Electrons->at(ielectron).Pt(),weight);
+             plots[leptonCat]["ElectronEta"]->Fill(ntuple->Electrons->at(ielectron).Eta(),weight);
+             plots[leptonCat]["ElectronPhi"]->Fill(ntuple->Electrons->at(ielectron).Phi(),weight);
+             plots[leptonCat]["ElectronEtaPhi"]->Fill(ntuple->Electrons->at(ielectron).Eta(),ntuple->Electrons->at(ielectron).Phi(),weight);
+          }
+       }
+       for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
+          if(ntuple->Muons_passIso->at(imuon)) {
+             plots[leptonCat]["MuonPt"]->Fill(ntuple->Muons->at(imuon).Pt(),weight);
+             plots[leptonCat]["MuonEta"]->Fill(ntuple->Muons->at(imuon).Eta(),weight);
+             plots[leptonCat]["MuonPhi"]->Fill(ntuple->Muons->at(imuon).Phi(),weight);
+          }
+       }
+       
+       // Distributions for the first 10 jets
+       for (int ijet=0; ijet<ntuple->NJets && ijet<10; ijet++) {
+          string name = UserFunctions::concatString("Jet",ijet)+"Pt";
+          plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Pt(),weight);
+          name = UserFunctions::concatString("Jet",ijet)+"Eta";
+          plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Eta(),weight);
+          name = UserFunctions::concatString("Jet",ijet)+"Phi";
+          plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Phi(),weight);
+       }
+       // DeltaPhi for the first 4 jets
+       for (unsigned int ijet=0; ijet<4; ijet++) {
+          string name = UserFunctions::concatString("Jet",ijet)+"DeltaPhi";
+          if(ijet==0)      plots[leptonCat][name]->Fill(ntuple->DeltaPhi1,weight);
+          else if(ijet==1) plots[leptonCat][name]->Fill(ntuple->DeltaPhi2,weight);
+          else if(ijet==2) plots[leptonCat][name]->Fill(ntuple->DeltaPhi3,weight);
+          else if(ijet==3) plots[leptonCat][name]->Fill(ntuple->DeltaPhi4,weight);
+       }
+    }
 
-    // Distributions for leptons (inclusive)
-    for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
-        if(ntuple->Electrons_passIso->at(ielectron)) {
-            plots[leptonCat]["ElectronPt"]->Fill(ntuple->Electrons->at(ielectron).Pt(),weight);
-            plots[leptonCat]["ElectronEta"]->Fill(ntuple->Electrons->at(ielectron).Eta(),weight);
-            plots[leptonCat]["ElectronPhi"]->Fill(ntuple->Electrons->at(ielectron).Phi(),weight);
-            plots[leptonCat]["ElectronEtaPhi"]->Fill(ntuple->Electrons->at(ielectron).Eta(),ntuple->Electrons->at(ielectron).Phi(),weight);
-        }
-    }
-    for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
-        if(ntuple->Muons_passIso->at(imuon)) {
-            plots[leptonCat]["MuonPt"]->Fill(ntuple->Muons->at(imuon).Pt(),weight);
-            plots[leptonCat]["MuonEta"]->Fill(ntuple->Muons->at(imuon).Eta(),weight);
-            plots[leptonCat]["MuonPhi"]->Fill(ntuple->Muons->at(imuon).Phi(),weight);
-        }
-    }
-
-    // Distributions for the first 10 jets
-    for (int ijet=0; ijet<ntuple->NJets && ijet<10; ijet++) {
-        string name = UserFunctions::concatString("Jet",ijet)+"Pt";
-        plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Pt(),weight);
-        name = UserFunctions::concatString("Jet",ijet)+"Eta";
-        plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Eta(),weight);
-        name = UserFunctions::concatString("Jet",ijet)+"Phi";
-        plots[leptonCat][name]->Fill(ntuple->Jets->at(ijet).Phi(),weight);
-    }
-    // DeltaPhi for the first 4 jets
-    for (unsigned int ijet=0; ijet<4; ijet++) {
-        string name = UserFunctions::concatString("Jet",ijet)+"DeltaPhi";
-        if(ijet==0)      plots[leptonCat][name]->Fill(ntuple->DeltaPhi1,weight);
-        else if(ijet==1) plots[leptonCat][name]->Fill(ntuple->DeltaPhi2,weight);
-        else if(ijet==2) plots[leptonCat][name]->Fill(ntuple->DeltaPhi3,weight);
-        else if(ijet==3) plots[leptonCat][name]->Fill(ntuple->DeltaPhi4,weight);
+    if(UserFunctions::analysisCat == DEFS::Ana::GenMETComparison) {
+       plots[leptonCat]["GenMET"]->Fill(ntuple->GenMET,weight);
+       plots[leptonCat]["GenMET_unweighted"]->Fill(ntuple->GenMET);
     }
 
     if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
@@ -172,102 +178,104 @@ void UserFunctions::fillPlots(PlotFiller::MapOfPlots &  plots, TString processNa
 // Return true if the event pass the cuts imposed to the given lepton category
 bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* proc, Table& cutFlow) {  
 
-    // Event Filters
-    // An AND condition of event filters
-    if(!ntuple->HBHEIsoNoiseFilter) {return false;}
-    cutFlow.incrementCellRowColumn("HBHEIsoNoiseFilter",proc->name,true);
-    if(!ntuple->HBHENoiseFilter) {return false;}
-    cutFlow.incrementCellRowColumn("HBHENoiseFilter",proc->name,true);
-    if(!ntuple->ecalBadCalibFilter) {return false;}
-    cutFlow.incrementCellRowColumn("ecalBadCalibFilter",proc->name,true);
-    if(!ntuple->EcalDeadCellTriggerPrimitiveFilter) {return false;}
-    cutFlow.incrementCellRowColumn("EcalDeadCellTriggerPrimitiveFilter",proc->name,true);
-    if(!ntuple->BadChargedCandidateFilter) {return false;}
-    cutFlow.incrementCellRowColumn("BadChargedCandidateFilter",proc->name,true);
-    if(!ntuple->globalSuperTightHalo2016Filter) {return false;}
-    cutFlow.incrementCellRowColumn("globalSuperTightHalo2016Filter",proc->name,true);
-    if(ntuple->PFCaloMETRatio >= 5) {return false;}
-    cutFlow.incrementCellRowColumn("PFCaloMETRatio",proc->name,true);
-    for(unsigned int ijet=0; ijet<ntuple->Jets->size(); ijet++) {
-        if(ntuple->Jets->at(ijet).Pt()>200 && ntuple->Jets_muonEnergyFraction->at(ijet)>0.5 &&
-           mymath::deltaPhi(ntuple->Jets->at(ijet).Phi(),ntuple->METPhi) > (TMath::Pi()-0.4) ) {
-            return false;
+    if(UserFunctions::analysisCat==DEFS::Ana::RA2bAnalysis) {
+        // Event Filters
+        // An AND condition of event filters
+        if(!ntuple->HBHEIsoNoiseFilter) {return false;}
+        cutFlow.incrementCellRowColumn("HBHEIsoNoiseFilter",proc->name,true);
+        if(!ntuple->HBHENoiseFilter) {return false;}
+        cutFlow.incrementCellRowColumn("HBHENoiseFilter",proc->name,true);
+        if(!ntuple->ecalBadCalibFilter) {return false;}
+        cutFlow.incrementCellRowColumn("ecalBadCalibFilter",proc->name,true);
+        if(!ntuple->EcalDeadCellTriggerPrimitiveFilter) {return false;}
+        cutFlow.incrementCellRowColumn("EcalDeadCellTriggerPrimitiveFilter",proc->name,true);
+        if(!ntuple->BadChargedCandidateFilter) {return false;}
+        cutFlow.incrementCellRowColumn("BadChargedCandidateFilter",proc->name,true);
+        if(!ntuple->globalSuperTightHalo2016Filter) {return false;}
+        cutFlow.incrementCellRowColumn("globalSuperTightHalo2016Filter",proc->name,true);
+        if(ntuple->PFCaloMETRatio >= 5) {return false;}
+        cutFlow.incrementCellRowColumn("PFCaloMETRatio",proc->name,true);
+        for(unsigned int ijet=0; ijet<ntuple->Jets->size(); ijet++) {
+            if(ntuple->Jets->at(ijet).Pt()>200 && ntuple->Jets_muonEnergyFraction->at(ijet)>0.5 &&
+               mymath::deltaPhi(ntuple->Jets->at(ijet).Phi(),ntuple->METPhi) > (TMath::Pi()-0.4) ) {
+                return false;
+            }
         }
-    }
-    cutFlow.incrementCellRowColumn("noMuonJet",proc->name,true);
-    if(!ntuple->PrimaryVertexFilter) {return false;}
-    cutFlow.incrementCellRowColumn("NvtxAbove1",proc->name,true);
-    if(!ntuple->JetID) {return false;}
-    cutFlow.incrementCellRowColumn("JetID",proc->name,true);
+        cutFlow.incrementCellRowColumn("noMuonJet",proc->name,true);
+        if(!ntuple->PrimaryVertexFilter) {return false;}
+        cutFlow.incrementCellRowColumn("NvtxAbove1",proc->name,true);
+        if(!ntuple->JetID) {return false;}
+        cutFlow.incrementCellRowColumn("JetID",proc->name,true);
 
-    // An OR condition of several triggers
-    vector<string> triggers_to_check = {"HLT_PFMET100_PFMHT100_IDTight_v","HLT_PFMET110_PFMHT110_IDTight_v",
-                                        "HLT_PFMET120_PFMHT120_IDTight_v","HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
-                                        "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v","HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"};
+        // An OR condition of several triggers
+        vector<string> triggers_to_check = {"HLT_PFMET100_PFMHT100_IDTight_v","HLT_PFMET110_PFMHT110_IDTight_v",
+                                            "HLT_PFMET120_PFMHT120_IDTight_v","HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v",
+                                            "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v","HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v"};
    
-    vector<int> trigger_indices = utilities::vfind_many(*(ntuple->TriggerNames),triggers_to_check);
-    //loop over trigger names
-    bool goodTrigger = false;
-    for(unsigned h = 0; h < trigger_indices.size(); h++){
-        unsigned index = trigger_indices[h];
-        //check:
-        //1) if the decision was true (the line fired)
-        //2) if the line was not prescaled (currently ignored)
-        if(ntuple->TriggerPass->at(index)==1) {
-            goodTrigger = true;
-            break;
+        vector<int> trigger_indices = utilities::vfind_many(*(ntuple->TriggerNames),triggers_to_check);
+        //loop over trigger names
+        bool goodTrigger = false;
+        for(unsigned h = 0; h < trigger_indices.size(); h++){
+            unsigned index = trigger_indices[h];
+            //check:
+            //1) if the decision was true (the line fired)
+            //2) if the line was not prescaled (currently ignored)
+            if(ntuple->TriggerPass->at(index)==1) {
+                goodTrigger = true;
+                break;
+            }
         }
-    }
-    //skip event if finished searching and no HLT lines found
-    if(goodTrigger == false)
-        return false;
-    cutFlow.incrementCellRowColumn("c1:Triggers",proc->name,true);
+        //skip event if finished searching and no HLT lines found
+        if(goodTrigger == false)
+            return false;
+        cutFlow.incrementCellRowColumn("c1:Triggers",proc->name,true);
 
-    // Count the number of electrons/muons Aditee style
-    // Uncomment this block of code and the correct NLeptons line
-    if(ntuple->Electrons->size()>1 || ntuple->Muons->size()>1)
-       return false;
-    int nelectrons=0;
-    for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
-       if(ntuple->Electrons->at(ielectron).Pt()>20. && abs(ntuple->Electrons->at(ielectron).Eta())<2.1 &&
-          ntuple->Electrons_MTW->at(ielectron) < 100. && ntuple->Electrons_passIso->at(ielectron)) {
-          nelectrons++;
-       }
-    }
-    int nmuons=0;
-    for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
-       if(ntuple->Muons->at(imuon).Pt()>20. && abs(ntuple->Muons->at(imuon).Eta())<2.1 &&
-          ntuple->Muons_MTW->at(imuon) < 100. && ntuple->Muons_passIso->at(imuon)) {
-          nmuons++;
-       }
-    }
+        // Count the number of electrons/muons Aditee style
+        // Uncomment this block of code and the correct NLeptons line
+        if(ntuple->Electrons->size()>1 || ntuple->Muons->size()>1)
+           return false;
+        int nelectrons=0;
+        for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
+           if(ntuple->Electrons->at(ielectron).Pt()>20. && abs(ntuple->Electrons->at(ielectron).Eta())<2.1 &&
+              ntuple->Electrons_MTW->at(ielectron) < 100. && ntuple->Electrons_passIso->at(ielectron)) {
+              nelectrons++;
+           }
+        }
+        int nmuons=0;
+        for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
+           if(ntuple->Muons->at(imuon).Pt()>20. && abs(ntuple->Muons->at(imuon).Eta())<2.1 &&
+              ntuple->Muons_MTW->at(imuon) < 100. && ntuple->Muons_passIso->at(imuon)) {
+              nmuons++;
+           }
+        }
 
-    // Count the number of electrons/muons with the base cuts and iso cuts (to prove that is what Aditee is missing)
-    // Uncommenting the block below and the other NLeptons definition is successful in recovering my numbers using the
-    //  NElectrons and NMuons branches
-    // int nelectrons=0;
-    // for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
-    //    if(ntuple->Electrons->at(ielectron).Pt()>10. && abs(ntuple->Electrons->at(ielectron).Eta())<2.5 &&
-    //       ntuple->Electrons_passIso->at(ielectron)) {
-    //       nelectrons++;
-    //    }
-    // }
-    // int nmuons=0;
-    // for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
-    //    if(ntuple->Muons->at(imuon).Pt()>10. && abs(ntuple->Muons->at(imuon).Eta())<2.4 &&
-    //       ntuple->Muons_passIso->at(imuon)) {
-    //       nmuons++;
-    //    }
-    // }
+        // Count the number of electrons/muons with the base cuts and iso cuts (to prove that is what Aditee is missing)
+        // Uncommenting the block below and the other NLeptons definition is successful in recovering my numbers using the
+        //  NElectrons and NMuons branches
+        // int nelectrons=0;
+        // for(unsigned int ielectron=0; ielectron<ntuple->Electrons->size(); ielectron++) {
+        //    if(ntuple->Electrons->at(ielectron).Pt()>10. && abs(ntuple->Electrons->at(ielectron).Eta())<2.5 &&
+        //       ntuple->Electrons_passIso->at(ielectron)) {
+        //       nelectrons++;
+        //    }
+        // }
+        // int nmuons=0;
+        // for(unsigned int imuon=0; imuon<ntuple->Muons->size(); imuon++) {
+        //    if(ntuple->Muons->at(imuon).Pt()>10. && abs(ntuple->Muons->at(imuon).Eta())<2.4 &&
+        //       ntuple->Muons_passIso->at(imuon)) {
+        //       nmuons++;
+        //    }
+        // }
 
-    // Check the number of leptons
-    //int NLeptons = ntuple->NElectrons+ntuple->NMuons;
-    int NLeptons = nelectrons+nmuons;
-    if ((UserFunctions::leptonBin == DEFS::leptons0) && ((NLeptons)!=0))
-        return false;
-    else if ((UserFunctions::leptonBin == DEFS::lepton1) && (NLeptons>1 || NLeptons==0))
-        return false;
-    cutFlow.incrementCellRowColumn("c2:NLeptons",proc->name,true);
+        // Check the number of leptons
+        //int NLeptons = ntuple->NElectrons+ntuple->NMuons;
+        int NLeptons = nelectrons+nmuons;
+        if ((UserFunctions::leptonBin == DEFS::leptons0) && ((NLeptons)!=0))
+            return false;
+        else if ((UserFunctions::leptonBin == DEFS::lepton1) && (NLeptons>1 || NLeptons==0))
+            return false;
+        cutFlow.incrementCellRowColumn("c2:NLeptons",proc->name,true);
+    }
 
     //
     // Analysis specific cuts
@@ -281,6 +289,11 @@ bool UserFunctions::eventPassCuts(EventNtuple * ntuple, const PhysicsProcess* pr
             return false;
         if(utilities::ci_find_substr(proc->name,string("QCD"))!=-1 && ntuple->madMinDeltaRStatus!=1)
             return false;
+    }
+
+    if(UserFunctions::analysisCat==DEFS::Ana::GenMETComparison) {
+       if(ntuple->GenMET<150) return false;
+       cutFlow.incrementCellRowColumn("c0:GenMET",proc->name,true);
     }
 
     return true;  
@@ -398,7 +411,6 @@ int main(int argc,char**argv) {
     UserFunctions::leptonCat              = DEFS::getLeptonCat     (lepCat);
     string           lepBin               = cl.getValue<string>    ("lepBin",             "leptons0");
     UserFunctions::leptonBin              = DEFS::getLeptonBin     (lepBin);
-    UserFunctions::limitBranches          = cl.getValue<int>       ("limitBranches",               0);
     float            luminosity           = cl.getValue<float>     ("luminosity",            34558.0); //pb-1
     int              maxEvts              = cl.getValue<int>       ("maxEvents",                   0);
     bool             normToData           = cl.getValue<bool>      ("normToData",              false);
@@ -437,20 +449,37 @@ int main(int argc,char**argv) {
    
     // The vector holding all processes.
     vector <PhysicsProcess*> procs;
-    if(debug) {
-        vector<DEFS::PhysicsProcess::Type> p;
-        p.push_back(DEFS::PhysicsProcess::Data_JetHT);
-        procs = DefaultValues::getProcesses(p, UserFunctions::jetBin, UserFunctions::tagCat, true, UserFunctions::ntupleType, DEFS::Ana::RA2bAnalysis);
-        printProcesses(procs);
-    }
-    else if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
-        procs = DefaultValues::getProcessesHEM(UserFunctions::jetBin, UserFunctions::tagCat,
-                                               include_data, true, UserFunctions::ntupleType);
-    }
-    else if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis) {
+    if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis) {
         procs = DefaultValues::getProcessesRA2b(UserFunctions::jetBin, UserFunctions::tagCat,
                                                 include_data, include_systematics, true,
                                                 UserFunctions::ntupleType);
+    }
+    else if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
+        if(debug) {
+            vector<DEFS::PhysicsProcess::Type> p;
+            p.push_back(DEFS::PhysicsProcess::Data_JetHT);
+            procs = DefaultValues::getProcesses(p, UserFunctions::jetBin, UserFunctions::tagCat, true, UserFunctions::ntupleType, DEFS::Ana::RA2bAnalysis);
+            printProcesses(procs);
+        }
+        else {
+            procs = DefaultValues::getProcessesHEM(UserFunctions::jetBin, UserFunctions::tagCat,
+                                                   include_data, true, UserFunctions::ntupleType);
+        }
+    }
+    else if(UserFunctions::analysisCat == DEFS::Ana::GenMETComparison) {
+        if(debug) {
+            vector<DEFS::PhysicsProcess::Type> p;
+            p.push_back(DEFS::PhysicsProcess::Fall17_TTJets_DiLept_genMET_150);
+            p.push_back(DEFS::PhysicsProcess::Fall17_TTJets_SingleLeptFromT_genMET_150);
+            p.push_back(DEFS::PhysicsProcess::Autumn18_TTJets_DiLept_genMET_80);
+            procs = DefaultValues::getProcesses(p, UserFunctions::jetBin, UserFunctions::tagCat, true, UserFunctions::ntupleType, DEFS::Ana::GenMETComparison);
+            printProcesses(procs);
+        }
+        else {
+            procs = DefaultValues::getProcessesGenMET(UserFunctions::jetBin, UserFunctions::tagCat,
+                                                      include_data, include_systematics, true,
+                                                      UserFunctions::ntupleType);
+        }
     }
     else {
         cout << "ERROR::plotter_x Unknown analysis type. The program cannot continue." << endl;
@@ -509,10 +538,12 @@ int main(int argc,char**argv) {
 
         // Print the cut flow table with the full cut flow
         cutFlow.printTable(cout);
-        // Print the cut flow table after squashing some rows
-        Table cutFlowSquashed = cutFlow;
-        cutFlowSquashed.squashRows("HBHEIsoNoiseFilter","JetID","c0:Filters");
-        cutFlowSquashed.printTable(cout);
+        if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis) {
+            // Print the cut flow table after squashing some rows
+            Table cutFlowSquashed = cutFlow;
+            cutFlowSquashed.squashRows("HBHEIsoNoiseFilter","JetID","c0:Filters");
+            cutFlowSquashed.printTable(cout);
+        }
     }
     else {
         // Open the input file
@@ -572,7 +603,7 @@ int main(int argc,char**argv) {
 
     if(batchNumber<0) {
         // Make a copy of a subset of plots and set the y-axis to a logarithmic scale (if not in batch mode)
-        vector<string> plots_to_logify = {"HT","MHT","MET","NJets","NBTags","NJets_HEMRegion"};
+        vector<string> plots_to_logify = {"HT","MHT","MET","NJets","NBTags","NJets_HEMRegion","GenMET","GenMET_unweighted"};
         logify(plots,plots_to_logify,make_pair(false,true));
 
         // Get the formatted canvases (if not in batch mode)
@@ -622,7 +653,7 @@ void doPlotter(PlotFiller::MapOfPlots& plots, vector<PhysicsProcess*> procs, Tab
     pFill.setWeightFunction(&UserFunctions::weightFunc);
     pFill.setProcessFunction(&UserFunctions::processFunc);
     pFill.setInitializeEventFunction(&UserFunctions::initEventFunc);
-    pFill.setLimitBranches(UserFunctions::limitBranches);
+    pFill.setLimitBranches(UserFunctions::analysisCat);
     if (maxEvents>0)
         pFill.setMaximumEventsDEBUG(maxEvents);
 
@@ -641,7 +672,7 @@ vector<TCanvas*> getCanvases(PlotFiller::MapOfPlots & plots, vector<PhysicsProce
     for ( PlotFiller::MapOfPlots::iterator p = plots.begin(); p != plots.end() ; p++) {
         for ( map<string,  Plot * >::iterator p2 = p->second.begin(); p2 != p->second.end() ; p2++) {
             vector<TCanvas*> to_merge;
-            if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis)
+            if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis || UserFunctions::analysisCat == DEFS::Ana::GenMETComparison)
                 to_merge = ((FormattedPlot*) p2->second)->getCanvasTDR(procs);
             else
                 to_merge = ((FormattedPlot*) p2->second)->getStackedCanvasTDR(procs);
@@ -751,140 +782,158 @@ PlotFiller::MapOfPlots getPlotsForCat(DEFS::LeptonCat leptonCat, bool normToData
     //
     // Event quantities
     //
-    title = "MET";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
-                          {"E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
-                          make_pair(0.,1000.));   
-    plots[leptonCat][string(title)] = a;
+    if(UserFunctions::analysisCat == DEFS::Ana::RA2bAnalysis || UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
+        title = "MET";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                              {"E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,1000.));   
+        plots[leptonCat][string(title)] = a;
 
-    title = "MHT";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
-                          {"H_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
-                          make_pair(0.,1000.));   
-    plots[leptonCat][string(title)] = a;
+        title = "MHT";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                              {"H_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,1000.));   
+        plots[leptonCat][string(title)] = a;
 
-    title = "HT";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 80, 0, 4000),
-                          {"H_{T} [GeV]","Number of Events / 50 GeV"},
-                          make_pair(0.,4000.));   
-    plots[leptonCat][string(title)] = a;
+        title = "HT";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 80, 0, 4000),
+                              {"H_{T} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,4000.));   
+        plots[leptonCat][string(title)] = a;
 
-    title = "NJets";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
-                          {"N_{jets}","Number of Events"},
-                          make_pair(0.,20.));   
-    plots[leptonCat][string(title)] = a;
-
-    if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
-        title = "NJets_HEMRegion";
+        title = "NJets";
         name = title+lepStr;
         a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
                               {"N_{jets}","Number of Events"},
                               make_pair(0.,20.));   
         plots[leptonCat][string(title)] = a;
 
-        title = "MET_HEMRegion";
+        if(UserFunctions::analysisCat == DEFS::Ana::HEMAnalysis) {
+            title = "NJets_HEMRegion";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
+                                  {"N_{jets}","Number of Events"},
+                                  make_pair(0.,20.));   
+            plots[leptonCat][string(title)] = a;
+
+            title = "MET_HEMRegion";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                                  {"E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                                  make_pair(0.,1000.));   
+            plots[leptonCat][string(title)] = a;
+         }
+
+        title = "NBTags";
         name = title+lepStr;
-        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
-                              {"E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
-                              make_pair(0.,1000.));   
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
+                              {"N_{btags}","Number of Events"},
+                              make_pair(0.,20.));   
         plots[leptonCat][string(title)] = a;
-    }
 
-    title = "NBTags";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 20),
-                          {"N_{btags}","Number of Events"},
-                          make_pair(0.,20.));   
-    plots[leptonCat][string(title)] = a;
-
-    //
-    // Lepton quantities
-    //
-    title = "ElectronPt";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, 0, 1000),
-                          {"p_{T}^{e}","Number of Events / 10 GeV"},
-                          make_pair(0.,1000.));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "ElectronEta";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, -5, 5),
-                          {"#eta^{e}","Number of Events / 0.05"},
-                          make_pair(-5.,5.));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "ElectronPhi";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 61, -TMath::Pi(), TMath::Pi()),
-                          {"#phi^{e}","Number of Events / 0.103"},
-                          make_pair(-TMath::Pi(),TMath::Pi()));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "ElectronEtaPhi";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH2D(name.c_str(), title.c_str(), 100, -5, 5, 61, -TMath::Pi(), TMath::Pi()),
-                          {"#eta^{e}","#phi^{e}","Ratio"}, make_pair(-5,5));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "MuonPt";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, 0, 1000),
-                          {"p_{T}^{#mu}","Number of Events / 10 GeV"},
-                          make_pair(0.,1000.));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "MuonEta";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, -5, 5),
-                          {"#eta^{#mu}","Number of Events / 0.05"},
-                          make_pair(-5.,5.));   
-    plots[leptonCat][string(title)] = a;
-
-    title = "MuonPhi";
-    name = title+lepStr;
-    a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 61, -TMath::Pi(), TMath::Pi()),
-                          {"#phi^{#mu}","Number of Events / 0.103"},
-                          make_pair(-TMath::Pi(),TMath::Pi()));   
-    plots[leptonCat][string(title)] = a;
-
-    //
-    // Jet quantities
-    //
-    for (unsigned int ijet=0; ijet<10; ijet++) {
-        title = UserFunctions::concatString("Jet",ijet)+"Pt";
+        //
+        // Lepton quantities
+        //
+        title = "ElectronPt";
         name = title+lepStr;
         a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, 0, 1000),
-                              {UserFunctions::concatString("p_{T}^{jet",ijet)+"}","Number of Events / 10 GeV"},
+                              {"p_{T}^{e}","Number of Events / 10 GeV"},
                               make_pair(0.,1000.));   
         plots[leptonCat][string(title)] = a;
 
-        title = UserFunctions::concatString("Jet",ijet)+"Eta";
+        title = "ElectronEta";
         name = title+lepStr;
         a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, -5, 5),
-                              {UserFunctions::concatString("#eta^{jet",ijet)+"}","Number of Events / 0.05"},
+                              {"#eta^{e}","Number of Events / 0.05"},
                               make_pair(-5.,5.));   
         plots[leptonCat][string(title)] = a;
 
-        title = UserFunctions::concatString("Jet",ijet)+"Phi";
+        title = "ElectronPhi";
         name = title+lepStr;
         a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 61, -TMath::Pi(), TMath::Pi()),
-                              {UserFunctions::concatString("#phi^{jet",ijet)+"}","Number of Events / 0.103"},
+                              {"#phi^{e}","Number of Events / 0.103"},
                               make_pair(-TMath::Pi(),TMath::Pi()));   
         plots[leptonCat][string(title)] = a;
+
+        title = "ElectronEtaPhi";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH2D(name.c_str(), title.c_str(), 100, -5, 5, 61, -TMath::Pi(), TMath::Pi()),
+                              {"#eta^{e}","#phi^{e}","Ratio"}, make_pair(-5,5));   
+        plots[leptonCat][string(title)] = a;
+
+        title = "MuonPt";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, 0, 1000),
+                              {"p_{T}^{#mu}","Number of Events / 10 GeV"},
+                              make_pair(0.,1000.));   
+        plots[leptonCat][string(title)] = a;
+
+        title = "MuonEta";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, -5, 5),
+                              {"#eta^{#mu}","Number of Events / 0.05"},
+                              make_pair(-5.,5.));   
+        plots[leptonCat][string(title)] = a;
+
+        title = "MuonPhi";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 61, -TMath::Pi(), TMath::Pi()),
+                              {"#phi^{#mu}","Number of Events / 0.103"},
+                              make_pair(-TMath::Pi(),TMath::Pi()));   
+        plots[leptonCat][string(title)] = a;
+
+        //
+        // Jet quantities
+        //
+        for (unsigned int ijet=0; ijet<10; ijet++) {
+            title = UserFunctions::concatString("Jet",ijet)+"Pt";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, 0, 1000),
+                                  {UserFunctions::concatString("p_{T}^{jet",ijet)+"}","Number of Events / 10 GeV"},
+                                  make_pair(0.,1000.));   
+            plots[leptonCat][string(title)] = a;
+
+            title = UserFunctions::concatString("Jet",ijet)+"Eta";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 100, -5, 5),
+                                  {UserFunctions::concatString("#eta^{jet",ijet)+"}","Number of Events / 0.05"},
+                                  make_pair(-5.,5.));   
+            plots[leptonCat][string(title)] = a;
+
+            title = UserFunctions::concatString("Jet",ijet)+"Phi";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 61, -TMath::Pi(), TMath::Pi()),
+                                  {UserFunctions::concatString("#phi^{jet",ijet)+"}","Number of Events / 0.103"},
+                                  make_pair(-TMath::Pi(),TMath::Pi()));   
+            plots[leptonCat][string(title)] = a;
+        }
+
+        for (unsigned int ijet=0; ijet<4; ijet++) {
+            title = UserFunctions::concatString("Jet",ijet)+"DeltaPhi";
+            name = title+lepStr;
+            a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 31, 0, TMath::Pi()),
+                                  {UserFunctions::concatString("#Delta#phi(jet",ijet)+",MHT)","Number of Events / 0.101"},
+                                  make_pair(0,TMath::Pi()));   
+            plots[leptonCat][string(title)] = a;
+        }
     }
 
-    for (unsigned int ijet=0; ijet<4; ijet++) {
-        title = UserFunctions::concatString("Jet",ijet)+"DeltaPhi";
+    if(UserFunctions::analysisCat==DEFS::Ana::GenMETComparison) {
+        title = "GenMET";
         name = title+lepStr;
-        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 31, 0, TMath::Pi()),
-                              {UserFunctions::concatString("#Delta#phi(jet",ijet)+",MHT)","Number of Events / 0.101"},
-                              make_pair(0,TMath::Pi()));   
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                              {"Gen E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,1000.));   
+        plots[leptonCat][string(title)] = a;
+    
+        title = "GenMET_unweighted";
+        name = title+lepStr;
+        a = new FormattedPlot(new TH1D(name.c_str(), title.c_str(), 20, 0, 1000),
+                              {"Gen E_{T}^{miss} [GeV]","Number of Events / 50 GeV"},
+                              make_pair(0.,1000.));   
         plots[leptonCat][string(title)] = a;
     }
 
